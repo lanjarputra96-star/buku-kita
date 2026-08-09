@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as GuruRouteImport } from './routes/guru'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminDataGuruRouteImport } from './routes/admin.data-guru'
 import { Route as AdminDataSiswaRouteImport } from './routes/admin.data-siswa'
@@ -20,6 +21,14 @@ import { Route as AdminMasterBukuRouteImport } from './routes/admin.master-buku'
 import { Route as AdminPengaturanRouteImport } from './routes/admin.pengaturan'
 import { Route as AdminPengembalianRouteImport } from './routes/admin.pengembalian'
 import { Route as AdminRiwayatRouteImport } from './routes/admin.riwayat'
+import { Route as GuruIndexRouteImport } from './routes/guru.index'
+import { Route as GuruBelumKembaliRouteImport } from './routes/guru.belum-kembali'
+import { Route as GuruBukuRouteImport } from './routes/guru.buku'
+import { Route as GuruDistribusiRouteImport } from './routes/guru.distribusi'
+import { Route as GuruLaporanRouteImport } from './routes/guru.laporan'
+import { Route as GuruPengembalianRouteImport } from './routes/guru.pengembalian'
+import { Route as GuruProfilRouteImport } from './routes/guru.profil'
+import { Route as GuruSiswaRouteImport } from './routes/guru.siswa'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,6 +38,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuruRoute = GuruRouteImport.update({
+  id: '/guru',
+  path: '/guru',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -76,10 +90,51 @@ const AdminRiwayatRoute = AdminRiwayatRouteImport.update({
   path: '/riwayat',
   getParentRoute: () => AdminRoute,
 } as any)
+const GuruIndexRoute = GuruIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruBelumKembaliRoute = GuruBelumKembaliRouteImport.update({
+  id: '/belum-kembali',
+  path: '/belum-kembali',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruBukuRoute = GuruBukuRouteImport.update({
+  id: '/buku',
+  path: '/buku',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruDistribusiRoute = GuruDistribusiRouteImport.update({
+  id: '/distribusi',
+  path: '/distribusi',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruLaporanRoute = GuruLaporanRouteImport.update({
+  id: '/laporan',
+  path: '/laporan',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruPengembalianRoute = GuruPengembalianRouteImport.update({
+  id: '/pengembalian',
+  path: '/pengembalian',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruProfilRoute = GuruProfilRouteImport.update({
+  id: '/profil',
+  path: '/profil',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruSiswaRoute = GuruSiswaRouteImport.update({
+  id: '/siswa',
+  path: '/siswa',
+  getParentRoute: () => GuruRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/guru': typeof GuruRouteWithChildren
   '/admin/data-guru': typeof AdminDataGuruRoute
   '/admin/data-siswa': typeof AdminDataSiswaRoute
   '/admin/distribusi': typeof AdminDistribusiRoute
@@ -88,7 +143,15 @@ export interface FileRoutesByFullPath {
   '/admin/pengaturan': typeof AdminPengaturanRoute
   '/admin/pengembalian': typeof AdminPengembalianRoute
   '/admin/riwayat': typeof AdminRiwayatRoute
+  '/guru/belum-kembali': typeof GuruBelumKembaliRoute
+  '/guru/buku': typeof GuruBukuRoute
+  '/guru/distribusi': typeof GuruDistribusiRoute
+  '/guru/laporan': typeof GuruLaporanRoute
+  '/guru/pengembalian': typeof GuruPengembalianRoute
+  '/guru/profil': typeof GuruProfilRoute
+  '/guru/siswa': typeof GuruSiswaRoute
   '/admin/': typeof AdminIndexRoute
+  '/guru/': typeof GuruIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -100,12 +163,21 @@ export interface FileRoutesByTo {
   '/admin/pengaturan': typeof AdminPengaturanRoute
   '/admin/pengembalian': typeof AdminPengembalianRoute
   '/admin/riwayat': typeof AdminRiwayatRoute
+  '/guru/belum-kembali': typeof GuruBelumKembaliRoute
+  '/guru/buku': typeof GuruBukuRoute
+  '/guru/distribusi': typeof GuruDistribusiRoute
+  '/guru/laporan': typeof GuruLaporanRoute
+  '/guru/pengembalian': typeof GuruPengembalianRoute
+  '/guru/profil': typeof GuruProfilRoute
+  '/guru/siswa': typeof GuruSiswaRoute
   '/admin': typeof AdminIndexRoute
+  '/guru': typeof GuruIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/guru': typeof GuruRouteWithChildren
   '/admin/data-guru': typeof AdminDataGuruRoute
   '/admin/data-siswa': typeof AdminDataSiswaRoute
   '/admin/distribusi': typeof AdminDistribusiRoute
@@ -114,13 +186,22 @@ export interface FileRoutesById {
   '/admin/pengaturan': typeof AdminPengaturanRoute
   '/admin/pengembalian': typeof AdminPengembalianRoute
   '/admin/riwayat': typeof AdminRiwayatRoute
+  '/guru/belum-kembali': typeof GuruBelumKembaliRoute
+  '/guru/buku': typeof GuruBukuRoute
+  '/guru/distribusi': typeof GuruDistribusiRoute
+  '/guru/laporan': typeof GuruLaporanRoute
+  '/guru/pengembalian': typeof GuruPengembalianRoute
+  '/guru/profil': typeof GuruProfilRoute
+  '/guru/siswa': typeof GuruSiswaRoute
   '/admin/': typeof AdminIndexRoute
+  '/guru/': typeof GuruIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
+    | '/guru'
     | '/admin/data-guru'
     | '/admin/data-siswa'
     | '/admin/distribusi'
@@ -129,7 +210,15 @@ export interface FileRouteTypes {
     | '/admin/pengaturan'
     | '/admin/pengembalian'
     | '/admin/riwayat'
+    | '/guru/belum-kembali'
+    | '/guru/buku'
+    | '/guru/distribusi'
+    | '/guru/laporan'
+    | '/guru/pengembalian'
+    | '/guru/profil'
+    | '/guru/siswa'
     | '/admin/'
+    | '/guru/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -141,11 +230,20 @@ export interface FileRouteTypes {
     | '/admin/pengaturan'
     | '/admin/pengembalian'
     | '/admin/riwayat'
+    | '/guru/belum-kembali'
+    | '/guru/buku'
+    | '/guru/distribusi'
+    | '/guru/laporan'
+    | '/guru/pengembalian'
+    | '/guru/profil'
+    | '/guru/siswa'
     | '/admin'
+    | '/guru'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/guru'
     | '/admin/data-guru'
     | '/admin/data-siswa'
     | '/admin/distribusi'
@@ -154,12 +252,21 @@ export interface FileRouteTypes {
     | '/admin/pengaturan'
     | '/admin/pengembalian'
     | '/admin/riwayat'
+    | '/guru/belum-kembali'
+    | '/guru/buku'
+    | '/guru/distribusi'
+    | '/guru/laporan'
+    | '/guru/pengembalian'
+    | '/guru/profil'
+    | '/guru/siswa'
     | '/admin/'
+    | '/guru/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  GuruRoute: typeof GuruRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -176,6 +283,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guru': {
+      id: '/guru'
+      path: '/guru'
+      fullPath: '/guru'
+      preLoaderRoute: typeof GuruRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -241,6 +355,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRiwayatRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/guru/': {
+      id: '/guru/'
+      path: '/'
+      fullPath: '/guru/'
+      preLoaderRoute: typeof GuruIndexRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/belum-kembali': {
+      id: '/guru/belum-kembali'
+      path: '/belum-kembali'
+      fullPath: '/guru/belum-kembali'
+      preLoaderRoute: typeof GuruBelumKembaliRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/buku': {
+      id: '/guru/buku'
+      path: '/buku'
+      fullPath: '/guru/buku'
+      preLoaderRoute: typeof GuruBukuRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/distribusi': {
+      id: '/guru/distribusi'
+      path: '/distribusi'
+      fullPath: '/guru/distribusi'
+      preLoaderRoute: typeof GuruDistribusiRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/laporan': {
+      id: '/guru/laporan'
+      path: '/laporan'
+      fullPath: '/guru/laporan'
+      preLoaderRoute: typeof GuruLaporanRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/pengembalian': {
+      id: '/guru/pengembalian'
+      path: '/pengembalian'
+      fullPath: '/guru/pengembalian'
+      preLoaderRoute: typeof GuruPengembalianRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/profil': {
+      id: '/guru/profil'
+      path: '/profil'
+      fullPath: '/guru/profil'
+      preLoaderRoute: typeof GuruProfilRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/siswa': {
+      id: '/guru/siswa'
+      path: '/siswa'
+      fullPath: '/guru/siswa'
+      preLoaderRoute: typeof GuruSiswaRouteImport
+      parentRoute: typeof GuruRoute
+    }
   }
 }
 
@@ -270,9 +440,34 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface GuruRouteChildren {
+  GuruBelumKembaliRoute: typeof GuruBelumKembaliRoute
+  GuruBukuRoute: typeof GuruBukuRoute
+  GuruDistribusiRoute: typeof GuruDistribusiRoute
+  GuruLaporanRoute: typeof GuruLaporanRoute
+  GuruPengembalianRoute: typeof GuruPengembalianRoute
+  GuruProfilRoute: typeof GuruProfilRoute
+  GuruSiswaRoute: typeof GuruSiswaRoute
+  GuruIndexRoute: typeof GuruIndexRoute
+}
+
+const GuruRouteChildren: GuruRouteChildren = {
+  GuruBelumKembaliRoute: GuruBelumKembaliRoute,
+  GuruBukuRoute: GuruBukuRoute,
+  GuruDistribusiRoute: GuruDistribusiRoute,
+  GuruLaporanRoute: GuruLaporanRoute,
+  GuruPengembalianRoute: GuruPengembalianRoute,
+  GuruProfilRoute: GuruProfilRoute,
+  GuruSiswaRoute: GuruSiswaRoute,
+  GuruIndexRoute: GuruIndexRoute,
+}
+
+const GuruRouteWithChildren = GuruRoute._addFileChildren(GuruRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  GuruRoute: GuruRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
