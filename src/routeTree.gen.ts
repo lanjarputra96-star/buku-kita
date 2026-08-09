@@ -12,7 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminDataGuruRouteImport } from './routes/admin.data-guru'
+import { Route as AdminDataSiswaRouteImport } from './routes/admin.data-siswa'
+import { Route as AdminDistribusiRouteImport } from './routes/admin.distribusi'
+import { Route as AdminLaporanRouteImport } from './routes/admin.laporan'
 import { Route as AdminMasterBukuRouteImport } from './routes/admin.master-buku'
+import { Route as AdminPengaturanRouteImport } from './routes/admin.pengaturan'
+import { Route as AdminPengembalianRouteImport } from './routes/admin.pengembalian'
+import { Route as AdminRiwayatRouteImport } from './routes/admin.riwayat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,36 +36,125 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminDataGuruRoute = AdminDataGuruRouteImport.update({
+  id: '/data-guru',
+  path: '/data-guru',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDataSiswaRoute = AdminDataSiswaRouteImport.update({
+  id: '/data-siswa',
+  path: '/data-siswa',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDistribusiRoute = AdminDistribusiRouteImport.update({
+  id: '/distribusi',
+  path: '/distribusi',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLaporanRoute = AdminLaporanRouteImport.update({
+  id: '/laporan',
+  path: '/laporan',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMasterBukuRoute = AdminMasterBukuRouteImport.update({
   id: '/master-buku',
   path: '/master-buku',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPengaturanRoute = AdminPengaturanRouteImport.update({
+  id: '/pengaturan',
+  path: '/pengaturan',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPengembalianRoute = AdminPengembalianRouteImport.update({
+  id: '/pengembalian',
+  path: '/pengembalian',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRiwayatRoute = AdminRiwayatRouteImport.update({
+  id: '/riwayat',
+  path: '/riwayat',
   getParentRoute: () => AdminRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin/data-guru': typeof AdminDataGuruRoute
+  '/admin/data-siswa': typeof AdminDataSiswaRoute
+  '/admin/distribusi': typeof AdminDistribusiRoute
+  '/admin/laporan': typeof AdminLaporanRoute
   '/admin/master-buku': typeof AdminMasterBukuRoute
+  '/admin/pengaturan': typeof AdminPengaturanRoute
+  '/admin/pengembalian': typeof AdminPengembalianRoute
+  '/admin/riwayat': typeof AdminRiwayatRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/data-guru': typeof AdminDataGuruRoute
+  '/admin/data-siswa': typeof AdminDataSiswaRoute
+  '/admin/distribusi': typeof AdminDistribusiRoute
+  '/admin/laporan': typeof AdminLaporanRoute
   '/admin/master-buku': typeof AdminMasterBukuRoute
+  '/admin/pengaturan': typeof AdminPengaturanRoute
+  '/admin/pengembalian': typeof AdminPengembalianRoute
+  '/admin/riwayat': typeof AdminRiwayatRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin/data-guru': typeof AdminDataGuruRoute
+  '/admin/data-siswa': typeof AdminDataSiswaRoute
+  '/admin/distribusi': typeof AdminDistribusiRoute
+  '/admin/laporan': typeof AdminLaporanRoute
   '/admin/master-buku': typeof AdminMasterBukuRoute
+  '/admin/pengaturan': typeof AdminPengaturanRoute
+  '/admin/pengembalian': typeof AdminPengembalianRoute
+  '/admin/riwayat': typeof AdminRiwayatRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/admin/master-buku' | '/admin/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/admin/data-guru'
+    | '/admin/data-siswa'
+    | '/admin/distribusi'
+    | '/admin/laporan'
+    | '/admin/master-buku'
+    | '/admin/pengaturan'
+    | '/admin/pengembalian'
+    | '/admin/riwayat'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/master-buku' | '/admin'
-  id: '__root__' | '/' | '/admin' | '/admin/master-buku' | '/admin/'
+  to:
+    | '/'
+    | '/admin/data-guru'
+    | '/admin/data-siswa'
+    | '/admin/distribusi'
+    | '/admin/laporan'
+    | '/admin/master-buku'
+    | '/admin/pengaturan'
+    | '/admin/pengembalian'
+    | '/admin/riwayat'
+    | '/admin'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/admin/data-guru'
+    | '/admin/data-siswa'
+    | '/admin/distribusi'
+    | '/admin/laporan'
+    | '/admin/master-buku'
+    | '/admin/pengaturan'
+    | '/admin/pengembalian'
+    | '/admin/riwayat'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -89,6 +185,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/data-guru': {
+      id: '/admin/data-guru'
+      path: '/data-guru'
+      fullPath: '/admin/data-guru'
+      preLoaderRoute: typeof AdminDataGuruRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/data-siswa': {
+      id: '/admin/data-siswa'
+      path: '/data-siswa'
+      fullPath: '/admin/data-siswa'
+      preLoaderRoute: typeof AdminDataSiswaRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/distribusi': {
+      id: '/admin/distribusi'
+      path: '/distribusi'
+      fullPath: '/admin/distribusi'
+      preLoaderRoute: typeof AdminDistribusiRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/laporan': {
+      id: '/admin/laporan'
+      path: '/laporan'
+      fullPath: '/admin/laporan'
+      preLoaderRoute: typeof AdminLaporanRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/master-buku': {
       id: '/admin/master-buku'
       path: '/master-buku'
@@ -96,16 +220,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMasterBukuRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/pengaturan': {
+      id: '/admin/pengaturan'
+      path: '/pengaturan'
+      fullPath: '/admin/pengaturan'
+      preLoaderRoute: typeof AdminPengaturanRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/pengembalian': {
+      id: '/admin/pengembalian'
+      path: '/pengembalian'
+      fullPath: '/admin/pengembalian'
+      preLoaderRoute: typeof AdminPengembalianRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/riwayat': {
+      id: '/admin/riwayat'
+      path: '/riwayat'
+      fullPath: '/admin/riwayat'
+      preLoaderRoute: typeof AdminRiwayatRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminDataGuruRoute: typeof AdminDataGuruRoute
+  AdminDataSiswaRoute: typeof AdminDataSiswaRoute
+  AdminDistribusiRoute: typeof AdminDistribusiRoute
+  AdminLaporanRoute: typeof AdminLaporanRoute
   AdminMasterBukuRoute: typeof AdminMasterBukuRoute
+  AdminPengaturanRoute: typeof AdminPengaturanRoute
+  AdminPengembalianRoute: typeof AdminPengembalianRoute
+  AdminRiwayatRoute: typeof AdminRiwayatRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminDataGuruRoute: AdminDataGuruRoute,
+  AdminDataSiswaRoute: AdminDataSiswaRoute,
+  AdminDistribusiRoute: AdminDistribusiRoute,
+  AdminLaporanRoute: AdminLaporanRoute,
   AdminMasterBukuRoute: AdminMasterBukuRoute,
+  AdminPengaturanRoute: AdminPengaturanRoute,
+  AdminPengembalianRoute: AdminPengembalianRoute,
+  AdminRiwayatRoute: AdminRiwayatRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
