@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as GuruRouteImport } from './routes/guru'
+import { Route as OrtuRouteImport } from './routes/ortu'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminDataGuruRouteImport } from './routes/admin.data-guru'
 import { Route as AdminDataSiswaRouteImport } from './routes/admin.data-siswa'
@@ -29,6 +30,11 @@ import { Route as GuruLaporanRouteImport } from './routes/guru.laporan'
 import { Route as GuruPengembalianRouteImport } from './routes/guru.pengembalian'
 import { Route as GuruProfilRouteImport } from './routes/guru.profil'
 import { Route as GuruSiswaRouteImport } from './routes/guru.siswa'
+import { Route as OrtuIndexRouteImport } from './routes/ortu.index'
+import { Route as OrtuNotifikasiRouteImport } from './routes/ortu.notifikasi'
+import { Route as OrtuPeminjamanRouteImport } from './routes/ortu.peminjaman'
+import { Route as OrtuPengembalianRouteImport } from './routes/ortu.pengembalian'
+import { Route as OrtuProfilRouteImport } from './routes/ortu.profil'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -43,6 +49,11 @@ const AdminRoute = AdminRouteImport.update({
 const GuruRoute = GuruRouteImport.update({
   id: '/guru',
   path: '/guru',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrtuRoute = OrtuRouteImport.update({
+  id: '/ortu',
+  path: '/ortu',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -130,11 +141,37 @@ const GuruSiswaRoute = GuruSiswaRouteImport.update({
   path: '/siswa',
   getParentRoute: () => GuruRoute,
 } as any)
+const OrtuIndexRoute = OrtuIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OrtuRoute,
+} as any)
+const OrtuNotifikasiRoute = OrtuNotifikasiRouteImport.update({
+  id: '/notifikasi',
+  path: '/notifikasi',
+  getParentRoute: () => OrtuRoute,
+} as any)
+const OrtuPeminjamanRoute = OrtuPeminjamanRouteImport.update({
+  id: '/peminjaman',
+  path: '/peminjaman',
+  getParentRoute: () => OrtuRoute,
+} as any)
+const OrtuPengembalianRoute = OrtuPengembalianRouteImport.update({
+  id: '/pengembalian',
+  path: '/pengembalian',
+  getParentRoute: () => OrtuRoute,
+} as any)
+const OrtuProfilRoute = OrtuProfilRouteImport.update({
+  id: '/profil',
+  path: '/profil',
+  getParentRoute: () => OrtuRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/guru': typeof GuruRouteWithChildren
+  '/ortu': typeof OrtuRouteWithChildren
   '/admin/data-guru': typeof AdminDataGuruRoute
   '/admin/data-siswa': typeof AdminDataSiswaRoute
   '/admin/distribusi': typeof AdminDistribusiRoute
@@ -150,8 +187,13 @@ export interface FileRoutesByFullPath {
   '/guru/pengembalian': typeof GuruPengembalianRoute
   '/guru/profil': typeof GuruProfilRoute
   '/guru/siswa': typeof GuruSiswaRoute
+  '/ortu/notifikasi': typeof OrtuNotifikasiRoute
+  '/ortu/peminjaman': typeof OrtuPeminjamanRoute
+  '/ortu/pengembalian': typeof OrtuPengembalianRoute
+  '/ortu/profil': typeof OrtuProfilRoute
   '/admin/': typeof AdminIndexRoute
   '/guru/': typeof GuruIndexRoute
+  '/ortu/': typeof OrtuIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -170,14 +212,20 @@ export interface FileRoutesByTo {
   '/guru/pengembalian': typeof GuruPengembalianRoute
   '/guru/profil': typeof GuruProfilRoute
   '/guru/siswa': typeof GuruSiswaRoute
+  '/ortu/notifikasi': typeof OrtuNotifikasiRoute
+  '/ortu/peminjaman': typeof OrtuPeminjamanRoute
+  '/ortu/pengembalian': typeof OrtuPengembalianRoute
+  '/ortu/profil': typeof OrtuProfilRoute
   '/admin': typeof AdminIndexRoute
   '/guru': typeof GuruIndexRoute
+  '/ortu': typeof OrtuIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/guru': typeof GuruRouteWithChildren
+  '/ortu': typeof OrtuRouteWithChildren
   '/admin/data-guru': typeof AdminDataGuruRoute
   '/admin/data-siswa': typeof AdminDataSiswaRoute
   '/admin/distribusi': typeof AdminDistribusiRoute
@@ -193,8 +241,13 @@ export interface FileRoutesById {
   '/guru/pengembalian': typeof GuruPengembalianRoute
   '/guru/profil': typeof GuruProfilRoute
   '/guru/siswa': typeof GuruSiswaRoute
+  '/ortu/notifikasi': typeof OrtuNotifikasiRoute
+  '/ortu/peminjaman': typeof OrtuPeminjamanRoute
+  '/ortu/pengembalian': typeof OrtuPengembalianRoute
+  '/ortu/profil': typeof OrtuProfilRoute
   '/admin/': typeof AdminIndexRoute
   '/guru/': typeof GuruIndexRoute
+  '/ortu/': typeof OrtuIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -202,6 +255,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/guru'
+    | '/ortu'
     | '/admin/data-guru'
     | '/admin/data-siswa'
     | '/admin/distribusi'
@@ -217,8 +271,13 @@ export interface FileRouteTypes {
     | '/guru/pengembalian'
     | '/guru/profil'
     | '/guru/siswa'
+    | '/ortu/notifikasi'
+    | '/ortu/peminjaman'
+    | '/ortu/pengembalian'
+    | '/ortu/profil'
     | '/admin/'
     | '/guru/'
+    | '/ortu/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -237,13 +296,19 @@ export interface FileRouteTypes {
     | '/guru/pengembalian'
     | '/guru/profil'
     | '/guru/siswa'
+    | '/ortu/notifikasi'
+    | '/ortu/peminjaman'
+    | '/ortu/pengembalian'
+    | '/ortu/profil'
     | '/admin'
     | '/guru'
+    | '/ortu'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/guru'
+    | '/ortu'
     | '/admin/data-guru'
     | '/admin/data-siswa'
     | '/admin/distribusi'
@@ -259,14 +324,20 @@ export interface FileRouteTypes {
     | '/guru/pengembalian'
     | '/guru/profil'
     | '/guru/siswa'
+    | '/ortu/notifikasi'
+    | '/ortu/peminjaman'
+    | '/ortu/pengembalian'
+    | '/ortu/profil'
     | '/admin/'
     | '/guru/'
+    | '/ortu/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   GuruRoute: typeof GuruRouteWithChildren
+  OrtuRoute: typeof OrtuRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -290,6 +361,13 @@ declare module '@tanstack/react-router' {
       path: '/guru'
       fullPath: '/guru'
       preLoaderRoute: typeof GuruRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ortu': {
+      id: '/ortu'
+      path: '/ortu'
+      fullPath: '/ortu'
+      preLoaderRoute: typeof OrtuRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -411,6 +489,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuruSiswaRouteImport
       parentRoute: typeof GuruRoute
     }
+    '/ortu/': {
+      id: '/ortu/'
+      path: '/'
+      fullPath: '/ortu/'
+      preLoaderRoute: typeof OrtuIndexRouteImport
+      parentRoute: typeof OrtuRoute
+    }
+    '/ortu/notifikasi': {
+      id: '/ortu/notifikasi'
+      path: '/notifikasi'
+      fullPath: '/ortu/notifikasi'
+      preLoaderRoute: typeof OrtuNotifikasiRouteImport
+      parentRoute: typeof OrtuRoute
+    }
+    '/ortu/peminjaman': {
+      id: '/ortu/peminjaman'
+      path: '/peminjaman'
+      fullPath: '/ortu/peminjaman'
+      preLoaderRoute: typeof OrtuPeminjamanRouteImport
+      parentRoute: typeof OrtuRoute
+    }
+    '/ortu/pengembalian': {
+      id: '/ortu/pengembalian'
+      path: '/pengembalian'
+      fullPath: '/ortu/pengembalian'
+      preLoaderRoute: typeof OrtuPengembalianRouteImport
+      parentRoute: typeof OrtuRoute
+    }
+    '/ortu/profil': {
+      id: '/ortu/profil'
+      path: '/profil'
+      fullPath: '/ortu/profil'
+      preLoaderRoute: typeof OrtuProfilRouteImport
+      parentRoute: typeof OrtuRoute
+    }
   }
 }
 
@@ -464,10 +577,29 @@ const GuruRouteChildren: GuruRouteChildren = {
 
 const GuruRouteWithChildren = GuruRoute._addFileChildren(GuruRouteChildren)
 
+interface OrtuRouteChildren {
+  OrtuNotifikasiRoute: typeof OrtuNotifikasiRoute
+  OrtuPeminjamanRoute: typeof OrtuPeminjamanRoute
+  OrtuPengembalianRoute: typeof OrtuPengembalianRoute
+  OrtuProfilRoute: typeof OrtuProfilRoute
+  OrtuIndexRoute: typeof OrtuIndexRoute
+}
+
+const OrtuRouteChildren: OrtuRouteChildren = {
+  OrtuNotifikasiRoute: OrtuNotifikasiRoute,
+  OrtuPeminjamanRoute: OrtuPeminjamanRoute,
+  OrtuPengembalianRoute: OrtuPengembalianRoute,
+  OrtuProfilRoute: OrtuProfilRoute,
+  OrtuIndexRoute: OrtuIndexRoute,
+}
+
+const OrtuRouteWithChildren = OrtuRoute._addFileChildren(OrtuRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   GuruRoute: GuruRouteWithChildren,
+  OrtuRoute: OrtuRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
