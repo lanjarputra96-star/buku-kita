@@ -12,11 +12,13 @@ export function DashboardShell({
   items,
   user,
   children,
+  onLogout,
 }: {
   portal: string;
   items: NavItem[];
   user: { name: string; meta: string; initials: string };
   children?: ReactNode;
+  onLogout?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -89,6 +91,7 @@ export function DashboardShell({
           </div>
           <Link
             to="/"
+            onClick={() => onLogout?.()}
             className="mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
           >
             <LogOut className="size-4" /> Keluar
