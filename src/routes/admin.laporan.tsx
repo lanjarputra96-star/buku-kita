@@ -155,7 +155,7 @@ function LaporanPage() {
           {sections[0]!.body.map((row, i) => (
             <tr key={i}>
               {row.map((cell, j) => (
-                <Td key={j} className={j === 0 ? "font-semibold" : undefined}>
+                <Td key={j} className={j === 0 ? "font-semibold" : ""}>
                   {cell}
                 </Td>
               ))}
