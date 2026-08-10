@@ -1,76 +1,132 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Save } from "lucide-react";
+import { Save, ShieldCheck, UserCog } from "lucide-react";
 import { PageHeader, Panel, Field } from "@/components/sibudi/ui-kit";
-import { SCHOOL } from "@/lib/sibudi-data";
+import { useSibudi } from "@/lib/sibudi-store";
 
 export const Route = createFileRoute("/admin/pengaturan")({
-  component: Pengaturan,
+  component: PengaturanPage,
 });
 
-const inputClass =
+const btnPrimary =
+  "inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary-hover";
+const input =
   "w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring";
 
-function Toggle({ label, desc, defaultChecked }: { label: string; desc: string; defaultChecked?: boolean }) {
-  return (
-    <label className="flex items-start justify-between gap-4 rounded-2xl border border-border p-4">
-      <span>
-        <span className="block text-sm font-semibold">{label}</span>
-        <span className="mt-0.5 block text-xs text-muted-foreground">{desc}</span>
-      </span>
-      <input type="checkbox" defaultChecked={defaultChecked} className="mt-1 size-5 accent-[var(--primary)]" />
-    </label>
-  );
-}
+function PengaturanPage() {
+  const { state, update, log } = useSibudi();
+  const p = state.pengaturan;
 
-function Pengaturan() {
+  const [username, setUsername] = useState(p.adminUser);
+  const [passLama, setPassLama] = useState("");
+  const [passBaru, setPassBaru] = useState("");
+  const [passUlang, setPassUlang] = useState("");
+  const [akunMsg, setAkunMsg] = useState("");
+
+  const [profil, setProfil] = useState({
+    namaSekolah: p.namaSekolah,
+    kepalaSekolah: p.kepalaSekolah,
+    nipKepala: p.nipKepala,
+    penanggungJawab: p.penanggungJawab,
+    nipPenanggung: p.nipPenanggung,
+  });
+  const [profilMsg, setProfilMsg] = useState("");
+
+  function simpanAkun() {
+    if (passLama !== p.adminPass) {
+      setAkunMsg("Password lama tidak sesuai.");
+      return;
+    }
+    if (passBaru && passBaru !== passUlang) {
+      setAkunMsg("Konfirmasi password baru tidak cocok.");
+      return;
+    }
+    update((s) => ({
+      ...s,
+      pengaturan: {
+        ...s.pengaturan,
+        adminUser: username.trim() || s.pengaturan.adminUser,
+        adminPass: passBaru || s.pengaturan.adminPass,
+      },
+    }));
+    log("Memperbarui akun admin", "Pengaturan");
+    setAkunMsg("Akun admin berhasil diperbarui. Gunakan data baru saat login berikutnya.");
+    setPassLama("");
+    setPassBaru("");
+    setPassUlang("");
+  }
+
   return (
     <>
-      <PageHeader title="Pengaturan" desc="Konfigurasi identitas sekolah, aturan peminjaman, dan notifikasi." />
+      <PageHeader title="Pengaturan" desc="Kelola akun admin, identitas sekolah, dan penanggung jawab perpustakaan." />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Panel title="Identitas Sekolah">
-          <div className="space-y-4">
-            <Field label="Nama Sekolah">
-              <input defaultValue={SCHOOL.name} className={inputClass} />
-            </Field>
-            <Field label="Kota">
-              <input defaultValue={SCHOOL.city} className={inputClass} />
-            </Field>
-            <Field label="Tahun Ajaran">
-              <input defaultValue="2026/2027" className={inputClass} />
-            </Field>
-            <Field label="Kepala Sekolah">
-              <input defaultValue="Dra. Sri Wahyuni, M.Pd" className={inputClass} />
-            </Field>
-          </div>
-        </Panel>
+      <Panel title="Akun Admin" desc="Ganti username dan password login portal admin.">
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Username">
+            <input className={input} value={username} onChange={(e) => setUsername(e.target.value)} />
+          </Field>
+          <Field label="Password Lama">
+            <input type="password" className={input} value={passLama} onChange={(e) => setPassLama(e.target.value)} />
+          </Field>
+          <Field label="Password Baru">
+            <input type="password" className={input} value={passBaru} onChange={(e) => setPassBaru(e.target.value)} />
+          </Field>
+          <Field label="Ulangi Password Baru">
+            <input type="password" className={input} value={passUlang} onChange={(e) => setPassUlang(e.target.value)} />
+          </Field>
+        </div>
+        {akunMsg ? <p className="mt-3 text-xs font-semibold text-primary">{akunMsg}</p> : null}
+        <button className={btnPrimary + " mt-4"} onClick={simpanAkun}>
+          <ShieldCheck className="size-4" /> Simpan Akun
+        </button>
+      </Panel>
 
-        <Panel title="Aturan Peminjaman">
-          <div className="space-y-4">
-            <Field label="Durasi Peminjaman (hari)">
-              <input type="number" defaultValue={180} className={inputClass} />
-            </Field>
-            <Field label="Maksimal Buku per Siswa">
-              <input type="number" defaultValue={8} className={inputClass} />
-            </Field>
-            <Field label="Denda Keterlambatan per Hari (Rp)">
-              <input type="number" defaultValue={0} className={inputClass} />
-            </Field>
-          </div>
-        </Panel>
+      <Panel title="Identitas & Penanggung Jawab" desc="Nama ini muncul pada tanda tangan laporan PDF/Word.">
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Nama Sekolah">
+            <input className={input} value={profil.namaSekolah} onChange={(e) => setProfil({ ...profil, namaSekolah: e.target.value })} />
+          </Field>
+          <Field label="Kepala Sekolah">
+            <input className={input} value={profil.kepalaSekolah} onChange={(e) => setProfil({ ...profil, kepalaSekolah: e.target.value })} />
+          </Field>
+          <Field label="NIP Kepala Sekolah">
+            <input className={input} value={profil.nipKepala} onChange={(e) => setProfil({ ...profil, nipKepala: e.target.value })} />
+          </Field>
+          <Field label="Penanggung Jawab / Petugas Perpustakaan">
+            <input
+              className={input}
+              value={profil.penanggungJawab}
+              onChange={(e) => setProfil({ ...profil, penanggungJawab: e.target.value })}
+            />
+          </Field>
+          <Field label="NIP Penanggung Jawab">
+            <input className={input} value={profil.nipPenanggung} onChange={(e) => setProfil({ ...profil, nipPenanggung: e.target.value })} />
+          </Field>
+        </div>
+        {profilMsg ? <p className="mt-3 text-xs font-semibold text-primary">{profilMsg}</p> : null}
+        <button
+          className={btnPrimary + " mt-4"}
+          onClick={() => {
+            update((s) => ({ ...s, pengaturan: { ...s.pengaturan, ...profil } }));
+            log("Memperbarui identitas sekolah & penanggung jawab", "Pengaturan");
+            setProfilMsg("Data berhasil disimpan.");
+          }}
+        >
+          <Save className="size-4" /> Simpan Perubahan
+        </button>
+      </Panel>
 
-        <Panel title="Notifikasi" className="lg:col-span-2">
-          <div className="grid gap-3 md:grid-cols-2">
-            <Toggle label="Pengingat WhatsApp" desc="Kirim pengingat jatuh tempo ke wali murid." defaultChecked />
-            <Toggle label="Notifikasi Distribusi" desc="Beritahu orang tua saat buku baru diserahkan." defaultChecked />
-            <Toggle label="Ringkasan Mingguan Guru" desc="Kirim rekap buku belum kembali tiap Senin." />
-            <Toggle label="Mode Verifikasi Ganda" desc="Pengembalian butuh persetujuan admin." defaultChecked />
-          </div>
-          <button className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">
-            <Save className="size-4" /> Simpan Pengaturan
-          </button>
-        </Panel>
-      </div>
+      <Panel title="Akun Guru" desc="Password guru diatur pada menu Data Guru → Edit → Reset Password.">
+        <ul className="space-y-2 text-sm">
+          {state.guru.map((g) => (
+            <li key={g.nip} className="flex items-center gap-3 rounded-xl bg-muted px-4 py-3">
+              <UserCog className="size-4 text-primary" />
+              <span className="font-medium">{g.nama}</span>
+              <span className="text-xs text-muted-foreground">username: {g.username}</span>
+            </li>
+          ))}
+        </ul>
+      </Panel>
     </>
   );
 }
