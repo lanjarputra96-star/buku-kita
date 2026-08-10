@@ -11,8 +11,11 @@ import {
   Settings,
 } from "lucide-react";
 import { DashboardShell, type NavItem } from "@/components/sibudi/dashboard-shell";
+import { AdminLoginGate } from "@/components/sibudi/admin-login";
+import { useSibudi } from "@/lib/sibudi-store";
 
 export const Route = createFileRoute("/admin")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Portal Admin SIBUDI — SDN 1 Palapa" },
@@ -38,10 +41,20 @@ const items: NavItem[] = [
 
 function AdminLayout() {
   return (
+    <AdminLoginGate>
+      <AdminShell />
+    </AdminLoginGate>
+  );
+}
+
+function AdminShell() {
+  const { state, logout } = useSibudi();
+  return (
     <DashboardShell
       portal="Portal Admin"
       items={items}
-      user={{ name: "Administrator", meta: "admin@sdn1palapa.sch.id", initials: "AD" }}
+      onLogout={logout}
+      user={{ name: state.pengaturan.adminUser, meta: state.pengaturan.penanggungJawab, initials: "AD" }}
     />
   );
 }
