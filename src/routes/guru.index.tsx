@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PackagePlus, RefreshCw, Users, BarChart3, BookOpen, AlertTriangle } from "lucide-react";
 import { Panel, StatCard, DataTable, Td, Badge, statusTone } from "@/components/sibudi/ui-kit";
 import { distribusiList, belumKembaliList } from "@/lib/sibudi-data";
+import { useSibudi } from "@/lib/sibudi-store";
 
 export const Route = createFileRoute("/guru/")({
   component: GuruDashboard,
