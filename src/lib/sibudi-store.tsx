@@ -8,7 +8,19 @@ import {
   type Guru,
 } from "@/lib/sibudi-data";
 
-export type GuruAkun = Guru & { username: string; password: string };
+export type GuruAkun = Guru & { username: string; password: string; wa?: string; waSynced?: boolean };
+
+export type SiswaAkun = Siswa & { password?: string };
+
+export type Notif = {
+  id: string;
+  nisn: string;
+  judul: string;
+  isi: string;
+  waktu: string;
+  tipe: "warning" | "success" | "info";
+  kanal: string;
+};
 
 export type TransaksiItem = {
   id: string;
@@ -38,25 +50,30 @@ export type Pengaturan = {
 
 export type SibudiState = {
   buku: Buku[];
-  siswa: Siswa[];
+  siswa: SiswaAkun[];
   guru: GuruAkun[];
   distribusi: TransaksiItem[];
   pengembalian: TransaksiItem[];
   riwayat: LogItem[];
+  notifikasi: Notif[];
   pengaturan: Pengaturan;
   adminLoggedIn: boolean;
+  guruLoggedIn: string | null;
 };
 
 const KEY = "sibudi-state-v1";
 
 const initialState: SibudiState = {
   buku: seedBuku,
-  siswa: seedSiswa,
+  siswa: seedSiswa.map((s) => ({ ...s, password: "ortu123" })),
   guru: seedGuru.map((g, i) => ({
     ...g,
     username: g.email.split("@")[0] ?? `guru${i + 1}`,
     password: "guru123",
+    wa: "",
+    waSynced: false,
   })),
+  notifikasi: [],
   distribusi: [
     { id: "DS-2401", tanggal: "2026-07-12", tipe: "Siswa", penerima: "Siti Nurhaliza", kelas: "3A", bukuKode: "BK-003", buku: "IPAS Kelas 3", jumlah: 1, status: "Dipinjam" },
     { id: "DS-2402", tanggal: "2026-07-12", tipe: "Siswa", penerima: "Ahmad Rizky Pratama", kelas: "1A", bukuKode: "BK-001", buku: "Matematika Kelas 1", jumlah: 1, status: "Dipinjam" },
@@ -81,6 +98,7 @@ const initialState: SibudiState = {
     nipPenanggung: "19780512 200604 2 001",
   },
   adminLoggedIn: false,
+  guruLoggedIn: null,
 };
 
 type Ctx = {
@@ -90,6 +108,10 @@ type Ctx = {
   log: (aksi: string, tipe: string) => void;
   login: (user: string, pass: string) => boolean;
   logout: () => void;
+  loginGuru: (user: string, pass: string) => boolean;
+  logoutGuru: () => void;
+  guruAktif: GuruAkun | null;
+  kirimNotif: (n: Omit<Notif, "id" | "waktu">) => void;
 };
 
 const SibudiContext = createContext<Ctx | null>(null);
@@ -138,7 +160,35 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => setState((s) => ({ ...s, adminLoggedIn: false })), []);
 
-  const value = useMemo(() => ({ state, ready, update, log, login, logout }), [state, ready, update, log, login, logout]);
+  const loginGuru = useCallback((user: string, pass: string) => {
+    let ok = false;
+    setState((s) => {
+      const g = s.guru.find((x) => x.username.toLowerCase() === user.trim().toLowerCase() && x.password === pass);
+      ok = Boolean(g);
+      return g ? { ...s, guruLoggedIn: g.username } : s;
+    });
+    return ok;
+  }, []);
+
+  const logoutGuru = useCallback(() => setState((s) => ({ ...s, guruLoggedIn: null })), []);
+
+  const kirimNotif = useCallback((n: Omit<Notif, "id" | "waktu">) => {
+    const waktu = new Date().toLocaleString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+    setState((s) => ({
+      ...s,
+      notifikasi: [{ ...n, id: `NT-${Math.random().toString(36).slice(2, 8)}`, waktu }, ...s.notifikasi],
+    }));
+  }, []);
+
+  const guruAktif = useMemo(
+    () => state.guru.find((g) => g.username === state.guruLoggedIn) ?? null,
+    [state.guru, state.guruLoggedIn],
+  );
+
+  const value = useMemo(
+    () => ({ state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, kirimNotif }),
+    [state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, kirimNotif],
+  );
 
   return <SibudiContext.Provider value={value}>{children}</SibudiContext.Provider>;
 }
@@ -159,4 +209,16 @@ export function fmtTanggal(iso: string) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+export function waNumber(no: string) {
+  const digits = (no || "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("62")) return digits;
+  if (digits.startsWith("0")) return "62" + digits.slice(1);
+  return digits;
+}
+
+export function waLink(no: string, pesan: string) {
+  return `https://wa.me/${waNumber(no)}?text=${encodeURIComponent(pesan)}`;
 }
