@@ -36,10 +36,28 @@ const items: NavItem[] = [
 
 function GuruLayout() {
   return (
+    <GuruLoginGate>
+      <GuruShell />
+    </GuruLoginGate>
+  );
+}
+
+function GuruShell() {
+  const { guruAktif, logoutGuru } = useSibudi();
+  const nama = guruAktif?.nama ?? "Guru";
+  const initials = nama
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+
+  return (
     <DashboardShell
       portal="Portal Guru"
       items={items}
-      user={{ name: "Siti Aminah, S.Pd", meta: "Wali Kelas 1A", initials: "SA" }}
+      onLogout={logoutGuru}
+      user={{ name: nama, meta: `Wali Kelas ${guruAktif?.kelas ?? "-"}`, initials }}
     />
   );
 }
