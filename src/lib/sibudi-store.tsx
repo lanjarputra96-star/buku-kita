@@ -8,7 +8,19 @@ import {
   type Guru,
 } from "@/lib/sibudi-data";
 
-export type GuruAkun = Guru & { username: string; password: string };
+export type GuruAkun = Guru & { username: string; password: string; wa?: string; waSynced?: boolean };
+
+export type SiswaAkun = Siswa & { password?: string };
+
+export type Notif = {
+  id: string;
+  nisn: string;
+  judul: string;
+  isi: string;
+  waktu: string;
+  tipe: "warning" | "success" | "info";
+  kanal: string;
+};
 
 export type TransaksiItem = {
   id: string;
