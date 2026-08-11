@@ -50,25 +50,30 @@ export type Pengaturan = {
 
 export type SibudiState = {
   buku: Buku[];
-  siswa: Siswa[];
+  siswa: SiswaAkun[];
   guru: GuruAkun[];
   distribusi: TransaksiItem[];
   pengembalian: TransaksiItem[];
   riwayat: LogItem[];
+  notifikasi: Notif[];
   pengaturan: Pengaturan;
   adminLoggedIn: boolean;
+  guruLoggedIn: string | null;
 };
 
 const KEY = "sibudi-state-v1";
 
 const initialState: SibudiState = {
   buku: seedBuku,
-  siswa: seedSiswa,
+  siswa: seedSiswa.map((s) => ({ ...s, password: "ortu123" })),
   guru: seedGuru.map((g, i) => ({
     ...g,
     username: g.email.split("@")[0] ?? `guru${i + 1}`,
     password: "guru123",
+    wa: "",
+    waSynced: false,
   })),
+  notifikasi: [],
   distribusi: [
     { id: "DS-2401", tanggal: "2026-07-12", tipe: "Siswa", penerima: "Siti Nurhaliza", kelas: "3A", bukuKode: "BK-003", buku: "IPAS Kelas 3", jumlah: 1, status: "Dipinjam" },
     { id: "DS-2402", tanggal: "2026-07-12", tipe: "Siswa", penerima: "Ahmad Rizky Pratama", kelas: "1A", bukuKode: "BK-001", buku: "Matematika Kelas 1", jumlah: 1, status: "Dipinjam" },
