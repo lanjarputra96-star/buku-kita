@@ -210,3 +210,15 @@ export function fmtTanggal(iso: string) {
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 }
+
+export function waNumber(no: string) {
+  const digits = (no || "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("62")) return digits;
+  if (digits.startsWith("0")) return "62" + digits.slice(1);
+  return digits;
+}
+
+export function waLink(no: string, pesan: string) {
+  return `https://wa.me/${waNumber(no)}?text=${encodeURIComponent(pesan)}`;
+}
