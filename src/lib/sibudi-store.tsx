@@ -98,6 +98,7 @@ const initialState: SibudiState = {
     nipPenanggung: "19780512 200604 2 001",
   },
   adminLoggedIn: false,
+  guruLoggedIn: null,
 };
 
 type Ctx = {
@@ -107,6 +108,10 @@ type Ctx = {
   log: (aksi: string, tipe: string) => void;
   login: (user: string, pass: string) => boolean;
   logout: () => void;
+  loginGuru: (user: string, pass: string) => boolean;
+  logoutGuru: () => void;
+  guruAktif: GuruAkun | null;
+  kirimNotif: (n: Omit<Notif, "id" | "waktu">) => void;
 };
 
 const SibudiContext = createContext<Ctx | null>(null);
@@ -155,7 +160,35 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => setState((s) => ({ ...s, adminLoggedIn: false })), []);
 
-  const value = useMemo(() => ({ state, ready, update, log, login, logout }), [state, ready, update, log, login, logout]);
+  const loginGuru = useCallback((user: string, pass: string) => {
+    let ok = false;
+    setState((s) => {
+      const g = s.guru.find((x) => x.username.toLowerCase() === user.trim().toLowerCase() && x.password === pass);
+      ok = Boolean(g);
+      return g ? { ...s, guruLoggedIn: g.username } : s;
+    });
+    return ok;
+  }, []);
+
+  const logoutGuru = useCallback(() => setState((s) => ({ ...s, guruLoggedIn: null })), []);
+
+  const kirimNotif = useCallback((n: Omit<Notif, "id" | "waktu">) => {
+    const waktu = new Date().toLocaleString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+    setState((s) => ({
+      ...s,
+      notifikasi: [{ ...n, id: `NT-${Math.random().toString(36).slice(2, 8)}`, waktu }, ...s.notifikasi],
+    }));
+  }, []);
+
+  const guruAktif = useMemo(
+    () => state.guru.find((g) => g.username === state.guruLoggedIn) ?? null,
+    [state.guru, state.guruLoggedIn],
+  );
+
+  const value = useMemo(
+    () => ({ state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, kirimNotif }),
+    [state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, kirimNotif],
+  );
 
   return <SibudiContext.Provider value={value}>{children}</SibudiContext.Provider>;
 }
