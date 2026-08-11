@@ -2,12 +2,18 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Package, BookMarked, AlertTriangle, BookOpen } from "lucide-react";
 import { Panel, StatCard, DataTable, Td, Badge, statusTone } from "@/components/sibudi/ui-kit";
 import { distribusiList, notifikasiList } from "@/lib/sibudi-data";
+import { useSibudi } from "@/lib/sibudi-store";
 
 export const Route = createFileRoute("/ortu/")({
   component: OrtuDashboard,
 });
 
 function OrtuDashboard() {
+  const { state } = useSibudi();
+  const notifs = [
+    ...state.notifikasi.map((n) => ({ judul: n.judul, isi: n.isi, waktu: `${n.waktu} • ${n.kanal}`, tipe: n.tipe, key: n.id })),
+    ...notifikasiList.map((n) => ({ ...n, key: n.judul })),
+  ].slice(0, 6);
   return (
     <>
       <section className="rounded-3xl bg-primary p-6 text-primary-foreground shadow-soft md:p-8">
@@ -40,8 +46,8 @@ function OrtuDashboard() {
 
         <Panel title="Notifikasi Terbaru">
           <ul className="space-y-3">
-            {notifikasiList.map((n) => (
-              <li key={n.judul} className="rounded-2xl border border-border p-3.5">
+            {notifs.map((n) => (
+              <li key={n.key} className="rounded-2xl border border-border p-3.5">
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-semibold">{n.judul}</p>
                   <Badge tone={n.tipe === "warning" ? "warning" : n.tipe === "success" ? "success" : "info"}>
