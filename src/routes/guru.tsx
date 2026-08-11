@@ -10,6 +10,8 @@ import {
   User,
 } from "lucide-react";
 import { DashboardShell, type NavItem } from "@/components/sibudi/dashboard-shell";
+import { GuruLoginGate } from "@/components/sibudi/guru-login";
+import { useSibudi } from "@/lib/sibudi-store";
 
 export const Route = createFileRoute("/guru")({
   head: () => ({
