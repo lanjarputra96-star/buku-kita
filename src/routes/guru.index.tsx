@@ -15,12 +15,13 @@ const aksi = [
 ];
 
 function GuruDashboard() {
+  const { guruAktif } = useSibudi();
   return (
     <>
       <section className="rounded-3xl bg-primary p-6 text-primary-foreground shadow-soft md:p-8">
-        <h1 className="text-xl font-bold md:text-2xl">Selamat Datang, Ibu Siti! 👋</h1>
+        <h1 className="text-xl font-bold md:text-2xl">Selamat Datang, {guruAktif?.nama ?? "Guru"}! 👋</h1>
         <p className="mt-1 text-sm opacity-90">
-          Berikut ringkasan pengelolaan buku Kelas 1A hari ini.
+          Berikut ringkasan pengelolaan buku Kelas {guruAktif?.kelas ?? "-"} hari ini.
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {aksi.map((a) => (
