@@ -23,11 +23,29 @@ const items: NavItem[] = [
 ];
 
 function OrtuLayout() {
+  const { siswaAktif, logoutOrtu } = useSibudi();
+  const nama = siswaAktif?.nama ?? "Orang Tua";
+  const initials = nama
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+
   return (
-    <DashboardShell
-      portal="Portal Orang Tua"
-      items={items}
-      user={{ name: "Siti Nurhaliza", meta: "Kelas 3A • NISN 0081234567", initials: "SN" }}
-    />
+    <OrtuLoginGate>
+      <DashboardShell
+        portal="Portal Orang Tua"
+        items={items}
+        notifNisn={siswaAktif?.nisn}
+        onLogout={logoutOrtu}
+        user={{
+          name: nama,
+          meta: `Kelas ${siswaAktif?.kelas ?? "-"} • NISN ${siswaAktif?.nisn ?? "-"}`,
+          initials: initials || "OT",
+        }}
+      />
+    </OrtuLoginGate>
   );
 }
+
