@@ -10,7 +10,7 @@ import {
 
 export type GuruAkun = Guru & { username: string; password: string; wa?: string; waSynced?: boolean };
 
-export type SiswaAkun = Siswa & { password?: string };
+export type SiswaAkun = Siswa & { password?: string; setupDone?: boolean };
 
 export type Notif = {
   id: string;
@@ -32,9 +32,12 @@ export type TransaksiItem = {
   buku: string;
   jumlah: number;
   kondisi?: "Baik" | "Rusak Ringan" | "Rusak Berat" | "Hilang";
-  status: "Dipinjam" | "Dikembalikan";
+  status: "Dipinjam" | "Dikembalikan" | "Diajukan" | "Ditolak";
   catatan?: string;
+  diterima?: boolean;
+  nisn?: string;
 };
+
 
 export type LogItem = { waktu: string; aktor: string; aksi: string; tipe: string };
 
@@ -59,6 +62,8 @@ export type SibudiState = {
   pengaturan: Pengaturan;
   adminLoggedIn: boolean;
   guruLoggedIn: string | null;
+  ortuLoggedIn: string | null;
+
 };
 
 const KEY = "sibudi-state-v1";
@@ -99,6 +104,7 @@ const initialState: SibudiState = {
   },
   adminLoggedIn: false,
   guruLoggedIn: null,
+  ortuLoggedIn: null,
 };
 
 type Ctx = {
@@ -111,8 +117,13 @@ type Ctx = {
   loginGuru: (user: string, pass: string) => boolean;
   logoutGuru: () => void;
   guruAktif: GuruAkun | null;
+  loginOrtu: (nisn: string, pass: string) => boolean;
+  logoutOrtu: () => void;
+  setupOrtu: (password: string, wa: string) => void;
+  siswaAktif: SiswaAkun | null;
   kirimNotif: (n: Omit<Notif, "id" | "waktu">) => void;
 };
+
 
 const SibudiContext = createContext<Ctx | null>(null);
 
@@ -172,6 +183,25 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
 
   const logoutGuru = useCallback(() => setState((s) => ({ ...s, guruLoggedIn: null })), []);
 
+  const loginOrtu = useCallback((nisn: string, pass: string) => {
+    let ok = false;
+    setState((s) => {
+      const siswa = s.siswa.find((x) => x.nisn.trim() === nisn.trim() && (x.password ?? "ortu123") === pass);
+      ok = Boolean(siswa);
+      return siswa ? { ...s, ortuLoggedIn: siswa.nisn } : s;
+    });
+    return ok;
+  }, []);
+
+  const logoutOrtu = useCallback(() => setState((s) => ({ ...s, ortuLoggedIn: null })), []);
+
+  const setupOrtu = useCallback((password: string, wa: string) => {
+    setState((s) => ({
+      ...s,
+      siswa: s.siswa.map((x) => (x.nisn === s.ortuLoggedIn ? { ...x, password, wa, setupDone: true } : x)),
+    }));
+  }, []);
+
   const kirimNotif = useCallback((n: Omit<Notif, "id" | "waktu">) => {
     const waktu = new Date().toLocaleString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
     setState((s) => ({
@@ -185,10 +215,19 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
     [state.guru, state.guruLoggedIn],
   );
 
-  const value = useMemo(
-    () => ({ state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, kirimNotif }),
-    [state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, kirimNotif],
+  const siswaAktif = useMemo(
+    () => state.siswa.find((s) => s.nisn === state.ortuLoggedIn) ?? null,
+    [state.siswa, state.ortuLoggedIn],
   );
+
+  const value = useMemo(
+    () => ({
+      state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif,
+      loginOrtu, logoutOrtu, setupOrtu, siswaAktif, kirimNotif,
+    }),
+    [state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, loginOrtu, logoutOrtu, setupOrtu, siswaAktif, kirimNotif],
+  );
+
 
   return <SibudiContext.Provider value={value}>{children}</SibudiContext.Provider>;
 }

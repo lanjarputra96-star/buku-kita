@@ -2,6 +2,8 @@ import { useState } from "react";
 import { GraduationCap, LogIn } from "lucide-react";
 import { useSibudi } from "@/lib/sibudi-store";
 import { SCHOOL } from "@/lib/sibudi-data";
+import { PasswordField } from "@/components/sibudi/password-input";
+
 
 export function GuruLoginGate({ children }: { children: React.ReactNode }) {
   const { state, ready, loginGuru } = useSibudi();
@@ -42,17 +44,8 @@ export function GuruLoginGate({ children }: { children: React.ReactNode }) {
             placeholder="misal: siti"
           />
         </label>
-        <label className="block space-y-1.5">
-          <span className="text-xs font-semibold text-muted-foreground">Password</span>
-          <input
-            type="password"
-            value={pass}
-            onChange={(e) => setPass(e.target.value)}
-            autoComplete="current-password"
-            className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
-            placeholder="••••••"
-          />
-        </label>
+        <PasswordField value={pass} onChange={setPass} />
+
 
         {err ? <p className="text-xs font-semibold text-destructive">{err}</p> : null}
 

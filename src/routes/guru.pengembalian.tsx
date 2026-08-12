@@ -2,7 +2,8 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckCircle2, XCircle, Save } from "lucide-react";
 import { PageHeader, Panel, Field, DataTable, Td, Badge, statusTone } from "@/components/sibudi/ui-kit";
-import { bukuList, siswaList, pengembalianList } from "@/lib/sibudi-data";
+import { bukuList, siswaList } from "@/lib/sibudi-data";
+import { useSibudi, fmtTanggal } from "@/lib/sibudi-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/guru/pengembalian")({
@@ -14,6 +15,25 @@ const inputClass =
 
 function PengembalianGuru() {
   const [sub, setSub] = useState<"input" | "pengajuan">("input");
+  const { state, update, guruAktif } = useSibudi();
+  const kelas = guruAktif?.kelas ?? "";
+  const pengajuan = state.pengembalian.filter((p) => p.status === "Diajukan" && (!kelas || p.kelas === kelas));
+  const riwayat = state.pengembalian.filter((p) => !kelas || p.kelas === kelas);
+
+  function putuskan(id: string, terima: boolean) {
+    update((s) => ({
+      ...s,
+      pengembalian: s.pengembalian.map((p) => (p.id === id ? { ...p, status: terima ? "Dikembalikan" : "Ditolak" } : p)),
+      distribusi: terima
+        ? s.distribusi.map((d) => {
+            const p = s.pengembalian.find((x) => x.id === id);
+            return p && d.tipe === p.tipe && d.penerima === p.penerima && d.bukuKode === p.bukuKode && d.status === "Dipinjam"
+              ? { ...d, status: "Dikembalikan" as const }
+              : d;
+          })
+        : s.distribusi,
+    }));
+  }
 
   return (
     <>
@@ -78,22 +98,32 @@ function PengembalianGuru() {
           </form>
         ) : (
           <div className="space-y-3">
-            {pengembalianList.map((p) => (
+            {pengajuan.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Belum ada pengajuan pengembalian dari orang tua.</p>
+            ) : null}
+            {pengajuan.map((p) => (
               <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border p-4">
                 <div>
                   <p className="text-sm font-semibold">
-                    {p.siswa} <span className="text-xs text-muted-foreground">• {p.kelas}</span>
+                    {p.penerima} <span className="text-xs text-muted-foreground">• {p.kelas}</span>
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {p.buku} • diajukan {p.tanggal} • kondisi {p.kondisi}
+                    {p.buku} • diajukan {fmtTanggal(p.tanggal)} • kondisi {p.kondisi}
+                    {p.catatan ? ` • ${p.catatan}` : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge tone={statusTone(p.status)}>{p.status}</Badge>
-                  <button className="inline-flex items-center gap-1 rounded-lg bg-success/15 px-3 py-1.5 text-[11px] font-semibold text-success">
+                  <button
+                    onClick={() => putuskan(p.id, true)}
+                    className="inline-flex items-center gap-1 rounded-lg bg-success/15 px-3 py-1.5 text-[11px] font-semibold text-success"
+                  >
                     <CheckCircle2 className="size-3.5" /> Terima
                   </button>
-                  <button className="inline-flex items-center gap-1 rounded-lg bg-destructive/10 px-3 py-1.5 text-[11px] font-semibold text-destructive">
+                  <button
+                    onClick={() => putuskan(p.id, false)}
+                    className="inline-flex items-center gap-1 rounded-lg bg-destructive/10 px-3 py-1.5 text-[11px] font-semibold text-destructive"
+                  >
                     <XCircle className="size-3.5" /> Tolak
                   </button>
                 </div>
@@ -105,14 +135,14 @@ function PengembalianGuru() {
 
       <Panel title="Riwayat Pengembalian">
         <DataTable head={["ID", "Tanggal", "Siswa", "Buku", "Kondisi", "Status"]}>
-          {pengembalianList.map((p) => (
+          {riwayat.map((p) => (
             <tr key={p.id}>
               <Td className="font-semibold">{p.id}</Td>
-              <Td className="text-muted-foreground">{p.tanggal}</Td>
-              <Td>{p.siswa}</Td>
+              <Td className="text-muted-foreground">{fmtTanggal(p.tanggal)}</Td>
+              <Td>{p.penerima}</Td>
               <Td>{p.buku}</Td>
               <Td>
-                <Badge tone={statusTone(p.kondisi)}>{p.kondisi}</Badge>
+                <Badge tone={statusTone(p.kondisi ?? "Baik")}>{p.kondisi}</Badge>
               </Td>
               <Td>
                 <Badge tone={statusTone(p.status)}>{p.status}</Badge>

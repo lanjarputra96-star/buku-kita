@@ -9,7 +9,7 @@ export const Route = createFileRoute("/ortu/")({
 });
 
 function OrtuDashboard() {
-  const { state } = useSibudi();
+  const { state, siswaAktif } = useSibudi();
   const notifs = [
     ...state.notifikasi.map((n) => ({ judul: n.judul, isi: n.isi, waktu: `${n.waktu} • ${n.kanal}`, tipe: n.tipe, key: n.id })),
     ...notifikasiList.map((n) => ({ ...n, key: n.judul })),
@@ -18,8 +18,8 @@ function OrtuDashboard() {
     <>
       <section className="rounded-3xl bg-primary p-6 text-primary-foreground shadow-soft md:p-8">
         <p className="text-xs opacity-90">Portal Orang Tua</p>
-        <h1 className="mt-1 text-xl font-bold md:text-2xl">Selamat Datang, Siti Nurhaliza! 👋</h1>
-        <p className="mt-1 text-sm opacity-90">Kelas 3A • NISN 0081234567</p>
+        <h1 className="mt-1 text-xl font-bold md:text-2xl">Selamat Datang, {siswaAktif?.nama ?? "Orang Tua"}! 👋</h1>
+        <p className="mt-1 text-sm opacity-90">Kelas {siswaAktif?.kelas ?? "-"} • NISN {siswaAktif?.nisn ?? "-"}</p>
       </section>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
