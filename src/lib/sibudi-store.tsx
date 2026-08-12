@@ -10,7 +10,7 @@ import {
 
 export type GuruAkun = Guru & { username: string; password: string; wa?: string; waSynced?: boolean };
 
-export type SiswaAkun = Siswa & { password?: string };
+export type SiswaAkun = Siswa & { password?: string; setupDone?: boolean };
 
 export type Notif = {
   id: string;
@@ -32,9 +32,12 @@ export type TransaksiItem = {
   buku: string;
   jumlah: number;
   kondisi?: "Baik" | "Rusak Ringan" | "Rusak Berat" | "Hilang";
-  status: "Dipinjam" | "Dikembalikan";
+  status: "Dipinjam" | "Dikembalikan" | "Diajukan" | "Ditolak";
   catatan?: string;
+  diterima?: boolean;
+  nisn?: string;
 };
+
 
 export type LogItem = { waktu: string; aktor: string; aksi: string; tipe: string };
 
