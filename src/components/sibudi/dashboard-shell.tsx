@@ -1,9 +1,10 @@
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { BookOpen, LogOut, Menu, X, Bell } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SCHOOL } from "@/lib/sibudi-data";
+import { useSibudi } from "@/lib/sibudi-store";
 
 export type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean };
 
@@ -13,18 +14,27 @@ export function DashboardShell({
   user,
   children,
   onLogout,
+  notifNisn,
 }: {
   portal: string;
   items: NavItem[];
   user: { name: string; meta: string; initials: string };
   children?: ReactNode;
   onLogout?: () => void;
+  notifNisn?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const { state } = useSibudi();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const active = items.find((i) =>
     i.exact ? pathname === i.to : pathname === i.to || pathname.startsWith(i.to + "/"),
   );
+  const notifs = useMemo(
+    () => state.notifikasi.filter((n) => !notifNisn || n.nisn === notifNisn).slice(0, 8),
+    [state.notifikasi, notifNisn],
+  );
+
 
   return (
     <div className="flex min-h-screen w-full bg-background">
