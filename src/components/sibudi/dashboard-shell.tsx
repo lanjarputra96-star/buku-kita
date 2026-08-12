@@ -127,14 +127,52 @@ export function DashboardShell({
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="relative rounded-xl p-2 text-muted-foreground hover:bg-muted" aria-label="Notifikasi">
-              <Bell className="size-5" />
-              <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-warning" />
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setNotifOpen((v) => !v)}
+                className="relative rounded-xl p-2 text-muted-foreground hover:bg-muted"
+                aria-label="Notifikasi"
+              >
+                <Bell className="size-5" />
+                {notifs.length > 0 ? (
+                  <span className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-warning px-1 text-[9px] font-bold text-foreground">
+                    {notifs.length}
+                  </span>
+                ) : null}
+              </button>
+              {notifOpen ? (
+                <>
+                  <button
+                    aria-label="Tutup notifikasi"
+                    onClick={() => setNotifOpen(false)}
+                    className="fixed inset-0 z-30 cursor-default"
+                  />
+                  <div className="absolute right-0 z-40 mt-2 w-80 max-w-[85vw] rounded-2xl border border-border bg-card p-3 shadow-soft">
+                    <p className="px-1 pb-2 text-xs font-bold">Notifikasi</p>
+                    {notifs.length === 0 ? (
+                      <p className="px-1 pb-1 text-xs text-muted-foreground">Belum ada notifikasi baru.</p>
+                    ) : (
+                      <ul className="max-h-80 space-y-2 overflow-y-auto">
+                        {notifs.map((n) => (
+                          <li key={n.id} className="rounded-xl border border-border p-2.5">
+                            <p className="text-xs font-semibold">{n.judul}</p>
+                            <p className="mt-0.5 line-clamp-3 text-[11px] text-muted-foreground">{n.isi}</p>
+                            <p className="mt-1 text-[10px] text-muted-foreground">
+                              {n.waktu} • {n.kanal}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </>
+              ) : null}
+            </div>
             <span className="grid size-9 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
               {user.initials}
             </span>
           </div>
+
         </header>
 
         <main className="flex-1 space-y-6 p-4 md:p-8">{children ?? <Outlet />}</main>
