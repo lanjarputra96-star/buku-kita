@@ -21,7 +21,7 @@ export function DashboardShell({
   user: { name: string; meta: string; initials: string };
   children?: ReactNode;
   onLogout?: () => void;
-  notifNisn?: string;
+  notifNisn?: string | undefined;
 }) {
   const [open, setOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
