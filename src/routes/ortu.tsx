@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LayoutDashboard, Package, BookMarked, Bell, User } from "lucide-react";
 import { DashboardShell, type NavItem } from "@/components/sibudi/dashboard-shell";
+import { OrtuLoginGate } from "@/components/sibudi/ortu-login";
+import { useSibudi } from "@/lib/sibudi-store";
+
 
 export const Route = createFileRoute("/ortu")({
   head: () => ({
