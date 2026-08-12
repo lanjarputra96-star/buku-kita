@@ -19,11 +19,6 @@ function PengembalianOrtu() {
   const [info, setInfo] = useState("");
 
   const nama = siswaAktif?.nama ?? "";
-  const diajukanIds = useMemo(
-    () => state.pengembalian.filter((p) => p.penerima === nama).map((p) => p.bukuKode + p.tanggal),
-    [state.pengembalian, nama],
-  );
-
   const dipinjam = useMemo(
     () =>
       state.distribusi.filter(
@@ -142,7 +137,6 @@ function PengembalianOrtu() {
           )}
         </Panel>
       </div>
-      <span className="hidden">{diajukanIds.length}</span>
     </>
   );
 }
