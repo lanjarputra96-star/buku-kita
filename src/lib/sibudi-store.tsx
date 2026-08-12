@@ -183,6 +183,25 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
 
   const logoutGuru = useCallback(() => setState((s) => ({ ...s, guruLoggedIn: null })), []);
 
+  const loginOrtu = useCallback((nisn: string, pass: string) => {
+    let ok = false;
+    setState((s) => {
+      const siswa = s.siswa.find((x) => x.nisn.trim() === nisn.trim() && (x.password ?? "ortu123") === pass);
+      ok = Boolean(siswa);
+      return siswa ? { ...s, ortuLoggedIn: siswa.nisn } : s;
+    });
+    return ok;
+  }, []);
+
+  const logoutOrtu = useCallback(() => setState((s) => ({ ...s, ortuLoggedIn: null })), []);
+
+  const setupOrtu = useCallback((password: string, wa: string) => {
+    setState((s) => ({
+      ...s,
+      siswa: s.siswa.map((x) => (x.nisn === s.ortuLoggedIn ? { ...x, password, wa, setupDone: true } : x)),
+    }));
+  }, []);
+
   const kirimNotif = useCallback((n: Omit<Notif, "id" | "waktu">) => {
     const waktu = new Date().toLocaleString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
     setState((s) => ({
@@ -196,10 +215,19 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
     [state.guru, state.guruLoggedIn],
   );
 
-  const value = useMemo(
-    () => ({ state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, kirimNotif }),
-    [state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, kirimNotif],
+  const siswaAktif = useMemo(
+    () => state.siswa.find((s) => s.nisn === state.ortuLoggedIn) ?? null,
+    [state.siswa, state.ortuLoggedIn],
   );
+
+  const value = useMemo(
+    () => ({
+      state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif,
+      loginOrtu, logoutOrtu, setupOrtu, siswaAktif, kirimNotif,
+    }),
+    [state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, loginOrtu, logoutOrtu, setupOrtu, siswaAktif, kirimNotif],
+  );
+
 
   return <SibudiContext.Provider value={value}>{children}</SibudiContext.Provider>;
 }
