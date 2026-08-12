@@ -2,6 +2,8 @@ import { useState } from "react";
 import { GraduationCap, LogIn } from "lucide-react";
 import { useSibudi } from "@/lib/sibudi-store";
 import { SCHOOL } from "@/lib/sibudi-data";
+import { PasswordField } from "@/components/sibudi/password-input";
+
 
 export function GuruLoginGate({ children }: { children: React.ReactNode }) {
   const { state, ready, loginGuru } = useSibudi();
