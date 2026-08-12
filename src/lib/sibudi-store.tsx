@@ -62,6 +62,8 @@ export type SibudiState = {
   pengaturan: Pengaturan;
   adminLoggedIn: boolean;
   guruLoggedIn: string | null;
+  ortuLoggedIn: string | null;
+
 };
 
 const KEY = "sibudi-state-v1";
@@ -102,6 +104,7 @@ const initialState: SibudiState = {
   },
   adminLoggedIn: false,
   guruLoggedIn: null,
+  ortuLoggedIn: null,
 };
 
 type Ctx = {
@@ -114,8 +117,13 @@ type Ctx = {
   loginGuru: (user: string, pass: string) => boolean;
   logoutGuru: () => void;
   guruAktif: GuruAkun | null;
+  loginOrtu: (nisn: string, pass: string) => boolean;
+  logoutOrtu: () => void;
+  setupOrtu: (password: string, wa: string) => void;
+  siswaAktif: SiswaAkun | null;
   kirimNotif: (n: Omit<Notif, "id" | "waktu">) => void;
 };
+
 
 const SibudiContext = createContext<Ctx | null>(null);
 
