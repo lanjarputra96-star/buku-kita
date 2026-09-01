@@ -282,7 +282,7 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
           tujuan: waNumber(tujuan),
           nama,
           pesan,
-          status: s.pengaturan.botWa ? "Terkirim" : "Antre",
+          status: (s.pengaturan.botWa ? "Terkirim" : "Antre") as PesanWa["status"],
         },
         ...s.pesanWa,
       ].slice(0, 200),
