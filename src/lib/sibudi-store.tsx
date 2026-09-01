@@ -1,16 +1,16 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import {
-  bukuList as seedBuku,
-  siswaList as seedSiswa,
-  guruList as seedGuru,
-  type Buku,
-  type Siswa,
-  type Guru,
-} from "@/lib/sibudi-data";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Buku, Siswa, Guru } from "@/lib/sibudi-data";
 
 export type GuruAkun = Guru & { username: string; password: string; wa?: string; waSynced?: boolean };
 
-export type SiswaAkun = Siswa & { password?: string; setupDone?: boolean };
+export type SiswaAkun = Siswa & {
+  password?: string;
+  setupDone?: boolean;
+  hubungan?: string;
+  email?: string;
+  alamat?: string;
+};
 
 export type Notif = {
   id: string;
@@ -20,6 +20,15 @@ export type Notif = {
   waktu: string;
   tipe: "warning" | "success" | "info";
   kanal: string;
+};
+
+export type PesanWa = {
+  id: string;
+  waktu: string;
+  tujuan: string;
+  nama: string;
+  pesan: string;
+  status: "Terkirim" | "Antre";
 };
 
 export type TransaksiItem = {
@@ -36,8 +45,8 @@ export type TransaksiItem = {
   catatan?: string;
   diterima?: boolean;
   nisn?: string;
+  jatuhTempo?: string;
 };
-
 
 export type LogItem = { waktu: string; aktor: string; aksi: string; tipe: string };
 
@@ -49,6 +58,8 @@ export type Pengaturan = {
   nipKepala: string;
   penanggungJawab: string;
   nipPenanggung: string;
+  botNama: string;
+  botWa: string;
 };
 
 export type SibudiState = {
@@ -59,57 +70,70 @@ export type SibudiState = {
   pengembalian: TransaksiItem[];
   riwayat: LogItem[];
   notifikasi: Notif[];
+  pesanWa: PesanWa[];
   pengaturan: Pengaturan;
   adminLoggedIn: boolean;
   guruLoggedIn: string | null;
   ortuLoggedIn: string | null;
-
 };
 
-const KEY = "sibudi-state-v1";
+const KEY = "sibudi-state-v2";
+const ROW_ID = "main";
 
 const initialState: SibudiState = {
-  buku: seedBuku,
-  siswa: seedSiswa.map((s) => ({ ...s, password: "ortu123" })),
-  guru: seedGuru.map((g, i) => ({
-    ...g,
-    username: g.email.split("@")[0] ?? `guru${i + 1}`,
-    password: "guru123",
-    wa: "",
-    waSynced: false,
-  })),
+  buku: [],
+  siswa: [],
+  guru: [],
   notifikasi: [],
-  distribusi: [
-    { id: "DS-2401", tanggal: "2026-07-12", tipe: "Siswa", penerima: "Siti Nurhaliza", kelas: "3A", bukuKode: "BK-003", buku: "IPAS Kelas 3", jumlah: 1, status: "Dipinjam" },
-    { id: "DS-2402", tanggal: "2026-07-12", tipe: "Siswa", penerima: "Ahmad Rizky Pratama", kelas: "1A", bukuKode: "BK-001", buku: "Matematika Kelas 1", jumlah: 1, status: "Dipinjam" },
-    { id: "DS-2403", tanggal: "2026-07-10", tipe: "Guru", penerima: "Rina Kartika, S.Pd", kelas: "5B", bukuKode: "BK-005", buku: "Bahasa Inggris Kelas 5", jumlah: 2, status: "Dipinjam" },
-    { id: "DS-2404", tanggal: "2026-07-05", tipe: "Siswa", penerima: "Dewi Lestari", kelas: "1A", bukuKode: "BK-002", buku: "Bahasa Indonesia Kelas 1", jumlah: 1, status: "Dikembalikan" },
-  ],
-  pengembalian: [
-    { id: "PB-1201", tanggal: "2026-07-14", tipe: "Siswa", penerima: "Dewi Lestari", kelas: "1A", bukuKode: "BK-002", buku: "Bahasa Indonesia Kelas 1", jumlah: 1, kondisi: "Baik", status: "Dikembalikan" },
-    { id: "PB-1202", tanggal: "2026-07-14", tipe: "Siswa", penerima: "Nabila Az-Zahra", kelas: "6A", bukuKode: "BK-006", buku: "Seni Budaya Kelas 6", jumlah: 1, kondisi: "Rusak Ringan", status: "Dikembalikan" },
-  ],
-  riwayat: [
-    { waktu: "2026-07-14 09:12", aktor: "Administrator", aksi: "Menyetujui pengembalian PB-1201", tipe: "Pengembalian" },
-    { waktu: "2026-07-12 07:45", aktor: "Administrator", aksi: "Menambah stok buku BK-003 (+10)", tipe: "Master Buku" },
-  ],
+  pesanWa: [],
+  distribusi: [],
+  pengembalian: [],
+  riwayat: [],
   pengaturan: {
     adminUser: "admin",
     adminPass: "admin123",
     namaSekolah: "SD Negeri 1 Palapa",
-    kepalaSekolah: "Drs. Sukarno, M.Pd",
-    nipKepala: "19650312 198903 1 004",
-    penanggungJawab: "Siti Aminah, S.Pd",
-    nipPenanggung: "19780512 200604 2 001",
+    kepalaSekolah: "",
+    nipKepala: "",
+    penanggungJawab: "",
+    nipPenanggung: "",
+    botNama: "Chatbot SIBUDI",
+    botWa: "",
   },
   adminLoggedIn: false,
   guruLoggedIn: null,
   ortuLoggedIn: null,
 };
 
+/** Bagian data yang disimpan di cloud (tanpa status login perangkat). */
+type SharedState = Omit<SibudiState, "adminLoggedIn" | "guruLoggedIn" | "ortuLoggedIn">;
+
+function shared(s: SibudiState): SharedState {
+  const { adminLoggedIn: _a, guruLoggedIn: _g, ortuLoggedIn: _o, ...rest } = s;
+  return rest;
+}
+
+function mergeShared(base: SibudiState, data: Partial<SharedState> | null): SibudiState {
+  if (!data || Object.keys(data).length === 0) return base;
+  return {
+    ...base,
+    ...data,
+    pengaturan: { ...base.pengaturan, ...(data.pengaturan ?? {}) },
+    buku: data.buku ?? base.buku,
+    siswa: data.siswa ?? base.siswa,
+    guru: data.guru ?? base.guru,
+    distribusi: data.distribusi ?? base.distribusi,
+    pengembalian: data.pengembalian ?? base.pengembalian,
+    riwayat: data.riwayat ?? base.riwayat,
+    notifikasi: data.notifikasi ?? base.notifikasi,
+    pesanWa: data.pesanWa ?? base.pesanWa,
+  };
+}
+
 type Ctx = {
   state: SibudiState;
   ready: boolean;
+  syncing: boolean;
   update: (fn: (s: SibudiState) => SibudiState) => void;
   log: (aksi: string, tipe: string) => void;
   login: (user: string, pass: string) => boolean;
@@ -122,52 +146,88 @@ type Ctx = {
   setupOrtu: (password: string, wa: string) => void;
   siswaAktif: SiswaAkun | null;
   kirimNotif: (n: Omit<Notif, "id" | "waktu">) => void;
+  kirimWa: (tujuan: string, nama: string, pesan: string) => void;
 };
-
 
 const SibudiContext = createContext<Ctx | null>(null);
 
 export function SibudiProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<SibudiState>(initialState);
   const [ready, setReady] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const loaded = useRef(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Muat data: cache lokal dulu, lalu cloud (agar bisa dibuka di perangkat lain).
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setState({ ...initialState, ...(JSON.parse(raw) as SibudiState) });
-    } catch {
-      /* ignore */
-    }
-    setReady(true);
+    let alive = true;
+    (async () => {
+      let local: SibudiState = initialState;
+      try {
+        const raw = localStorage.getItem(KEY);
+        if (raw) local = mergeShared(initialState, JSON.parse(raw) as Partial<SharedState>);
+      } catch {
+        /* ignore */
+      }
+      if (alive) setState(local);
+
+      try {
+        const { data } = await supabase.from("sibudi_state").select("data").eq("id", ROW_ID).maybeSingle();
+        const remote = (data?.data ?? null) as Partial<SharedState> | null;
+        if (alive && remote && Object.keys(remote).length > 0) setState(mergeShared(initialState, remote));
+      } catch {
+        /* offline: pakai cache lokal */
+      }
+      if (!alive) return;
+      loaded.current = true;
+      setReady(true);
+    })();
+    return () => {
+      alive = false;
+    };
   }, []);
 
+  // Simpan ke cache lokal + cloud (debounce).
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || !loaded.current) return;
+    const payload = shared(state);
     try {
-      localStorage.setItem(KEY, JSON.stringify(state));
+      localStorage.setItem(KEY, JSON.stringify(payload));
     } catch {
       /* ignore */
     }
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(async () => {
+      setSyncing(true);
+      try {
+        await supabase
+          .from("sibudi_state")
+          .upsert({ id: ROW_ID, data: payload as never, updated_at: new Date().toISOString() });
+      } catch {
+        /* ignore */
+      }
+      setSyncing(false);
+    }, 700);
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
   }, [state, ready]);
 
   const update = useCallback((fn: (s: SibudiState) => SibudiState) => setState((s) => fn(s)), []);
 
-  const log = useCallback((aksi: string, tipe: string) => {
+  const log = useCallback((aksi: string, tipe: string, aktor = "Administrator") => {
     const waktu = new Date().toISOString().slice(0, 16).replace("T", " ");
-    setState((s) => ({ ...s, riwayat: [{ waktu, aktor: "Administrator", aksi, tipe }, ...s.riwayat] }));
+    setState((s) => ({ ...s, riwayat: [{ waktu, aktor, aksi, tipe }, ...s.riwayat] }));
   }, []);
 
-  const login = useCallback(
-    (user: string, pass: string) => {
-      let ok = false;
-      setState((s) => {
-        ok = user.trim() === s.pengaturan.adminUser && pass === s.pengaturan.adminPass;
-        return ok ? { ...s, adminLoggedIn: true } : s;
-      });
-      return ok;
-    },
-    [],
-  );
+  const login = useCallback((user: string, pass: string) => {
+    let ok = false;
+    setState((s) => {
+      ok = user.trim() === s.pengaturan.adminUser && pass === s.pengaturan.adminPass;
+      return ok ? { ...s, adminLoggedIn: true } : s;
+    });
+    return ok;
+  }, []);
 
   const logout = useCallback(() => setState((s) => ({ ...s, adminLoggedIn: false })), []);
 
@@ -210,6 +270,25 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  /** Kirim pesan lewat chatbot sekolah (bukan WhatsApp pribadi guru). */
+  const kirimWa = useCallback((tujuan: string, nama: string, pesan: string) => {
+    const waktu = new Date().toLocaleString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+    setState((s) => ({
+      ...s,
+      pesanWa: [
+        {
+          id: `WA-${Math.random().toString(36).slice(2, 8)}`,
+          waktu,
+          tujuan: waNumber(tujuan),
+          nama,
+          pesan,
+          status: (s.pengaturan.botWa ? "Terkirim" : "Antre") as PesanWa["status"],
+        },
+        ...s.pesanWa,
+      ].slice(0, 200),
+    }));
+  }, []);
+
   const guruAktif = useMemo(
     () => state.guru.find((g) => g.username === state.guruLoggedIn) ?? null,
     [state.guru, state.guruLoggedIn],
@@ -222,12 +301,11 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
-      state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif,
-      loginOrtu, logoutOrtu, setupOrtu, siswaAktif, kirimNotif,
+      state, ready, syncing, update, log, login, logout, loginGuru, logoutGuru, guruAktif,
+      loginOrtu, logoutOrtu, setupOrtu, siswaAktif, kirimNotif, kirimWa,
     }),
-    [state, ready, update, log, login, logout, loginGuru, logoutGuru, guruAktif, loginOrtu, logoutOrtu, setupOrtu, siswaAktif, kirimNotif],
+    [state, ready, syncing, update, log, login, logout, loginGuru, logoutGuru, guruAktif, loginOrtu, logoutOrtu, setupOrtu, siswaAktif, kirimNotif, kirimWa],
   );
-
 
   return <SibudiContext.Provider value={value}>{children}</SibudiContext.Provider>;
 }
@@ -238,7 +316,7 @@ export function useSibudi() {
   return ctx;
 }
 
-export const KELAS_LIST = ["1A", "1B", "2A", "3A", "4A", "5B", "6A"];
+export const KELAS_LIST = ["1A", "1B", "2A", "2B", "3A", "3B", "4A", "4B", "5A", "5B", "6A", "6B"];
 
 export function newId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
@@ -248,6 +326,14 @@ export function fmtTanggal(iso: string) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+export function hariTelat(jatuhTempo?: string) {
+  if (!jatuhTempo) return 0;
+  const d = new Date(jatuhTempo);
+  if (Number.isNaN(d.getTime())) return 0;
+  const diff = Math.floor((Date.now() - d.getTime()) / 86400000);
+  return diff > 0 ? diff : 0;
 }
 
 export function waNumber(no: string) {
