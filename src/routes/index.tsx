@@ -95,20 +95,6 @@ function Landing() {
               SIBUDI menyatukan pekerjaan admin, wali kelas, dan orang tua dalam satu sistem: dari
               pendataan buku, penyerahan ke siswa, sampai pengembalian dan laporan akhir semester.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link
-                to="/guru"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
-              >
-                Mulai Sekarang <ArrowRight className="size-4" />
-              </Link>
-              <Link
-                to="/ortu"
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-semibold transition-colors hover:bg-muted"
-              >
-                Cek Buku Ananda
-              </Link>
-            </div>
             <dl className="mt-9 grid max-w-md grid-cols-3 gap-4">
               {[
                 ["1.248", "Buku terdata"],
