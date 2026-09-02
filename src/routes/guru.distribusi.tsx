@@ -63,7 +63,7 @@ function DistribusiGuru() {
       status: "Dipinjam",
       catatan,
       nisn: s.nisn,
-      jatuhTempo: tempo || undefined,
+      ...(tempo ? { jatuhTempo: tempo } : {}),
       diterima: false,
     }));
 
