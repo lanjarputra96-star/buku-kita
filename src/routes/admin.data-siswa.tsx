@@ -136,7 +136,7 @@ function DataSiswa() {
                 if (!form.nama.trim()) return;
                 update((s) => ({ ...s, siswa: [form, ...s.siswa] }));
                 log(`Menambah siswa ${form.nama}`, "Data Siswa");
-                setForm({ nisn: "", nama: "", kelas: KELAS_LIST[0]!, wali: "", wa: "", dipinjam: 0 });
+                setForm({ nisn: "", nama: "", kelas: "", wali: "", wa: "", dipinjam: 0 });
                 setOpenForm(false);
               }}
             >
