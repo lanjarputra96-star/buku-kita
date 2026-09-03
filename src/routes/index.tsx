@@ -74,12 +74,6 @@ function Landing() {
             <p className="text-[11px] text-muted-foreground">{SCHOOL.name}</p>
           </div>
         </div>
-        <Link
-          to="/admin"
-          className="hidden rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover sm:inline-flex"
-        >
-          Masuk Aplikasi
-        </Link>
       </header>
 
       <main className="mx-auto max-w-6xl px-5 pb-20">

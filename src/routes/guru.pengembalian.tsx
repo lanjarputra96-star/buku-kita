@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckCircle2, XCircle, Save } from "lucide-react";
 import { PageHeader, Panel, Field, DataTable, Td, Badge, statusTone } from "@/components/sibudi/ui-kit";
-import { bukuList, siswaList } from "@/lib/sibudi-data";
-import { useSibudi, fmtTanggal } from "@/lib/sibudi-store";
+import { useSibudi, fmtTanggal, newId } from "@/lib/sibudi-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/guru/pengembalian")({
@@ -13,12 +12,56 @@ export const Route = createFileRoute("/guru/pengembalian")({
 const inputClass =
   "w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring";
 
+type Kondisi = "Baik" | "Rusak Ringan" | "Rusak Berat" | "Hilang";
+
 function PengembalianGuru() {
   const [sub, setSub] = useState<"input" | "pengajuan">("input");
-  const { state, update, guruAktif } = useSibudi();
+  const { state, update, guruAktif, log } = useSibudi();
   const kelas = guruAktif?.kelas ?? "";
   const pengajuan = state.pengembalian.filter((p) => p.status === "Diajukan" && (!kelas || p.kelas === kelas));
   const riwayat = state.pengembalian.filter((p) => !kelas || p.kelas === kelas);
+
+  const siswaKelas = useMemo(() => state.siswa.filter((s) => !kelas || s.kelas === kelas), [state.siswa, kelas]);
+  const [penerima, setPenerima] = useState("");
+  const [pilih, setPilih] = useState<string[]>([]);
+  const [tanggal, setTanggal] = useState(new Date().toISOString().slice(0, 10));
+  const [kondisi, setKondisi] = useState<Kondisi>("Baik");
+  const [catatan, setCatatan] = useState("");
+  const [info, setInfo] = useState("");
+
+  const namaAktif = penerima || siswaKelas[0]?.nama || "";
+  const dipinjam = useMemo(
+    () => state.distribusi.filter((d) => d.tipe === "Siswa" && d.penerima === namaAktif && d.status === "Dipinjam"),
+    [state.distribusi, namaAktif],
+  );
+
+  const toggle = (id: string) => setPilih((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+
+  function simpan() {
+    const dipilih = dipinjam.filter((d) => pilih.includes(d.id));
+    if (dipilih.length === 0) {
+      setInfo("Pilih minimal satu buku yang dikembalikan.");
+      return;
+    }
+    const items = dipilih.map((d) => ({
+      ...d,
+      id: newId("PB"),
+      tanggal,
+      kondisi,
+      catatan,
+      status: "Dikembalikan" as const,
+    }));
+    const ids = new Set(dipilih.map((d) => d.id));
+    update((s) => ({
+      ...s,
+      pengembalian: [...items, ...s.pengembalian],
+      distribusi: s.distribusi.map((d) => (ids.has(d.id) ? { ...d, status: "Dikembalikan" as const } : d)),
+    }));
+    log(`Mencatat pengembalian ${items.length} buku dari ${namaAktif}`, "Pengembalian");
+    setInfo(`${items.length} buku dari ${namaAktif} berhasil dicatat sebagai dikembalikan.`);
+    setPilih([]);
+    setCatatan("");
+  }
 
   function putuskan(id: string, terima: boolean) {
     update((s) => ({
@@ -61,41 +104,75 @@ function PengembalianGuru() {
         </div>
 
         {sub === "input" ? (
-          <form className="grid gap-4 md:grid-cols-2" onSubmit={(e) => e.preventDefault()}>
-            <Field label="Siswa">
-              <select className={inputClass}>
-                {siswaList.map((s) => (
-                  <option key={s.nisn}>{s.nama}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Buku Dikembalikan">
-              <select className={inputClass}>
-                {bukuList.map((b) => (
-                  <option key={b.kode}>{b.judul}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Tanggal Pengembalian">
-              <input type="date" className={inputClass} />
-            </Field>
-            <Field label="Kondisi Buku">
-              <select className={inputClass}>
-                <option>Baik</option>
-                <option>Rusak Ringan</option>
-                <option>Rusak Berat</option>
-                <option>Hilang</option>
-              </select>
-            </Field>
-            <Field label="Catatan Kondisi">
-              <textarea rows={3} className={inputClass} placeholder="Contoh: sampul sobek di bagian belakang" />
-            </Field>
-            <div className="flex items-end">
-              <button className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">
-                <Save className="size-4" /> Simpan Pengembalian
-              </button>
-            </div>
-          </form>
+          <div className="space-y-4">
+            {info ? <p className="rounded-xl bg-accent px-4 py-3 text-xs font-semibold text-primary">{info}</p> : null}
+            {siswaKelas.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Belum ada data siswa di kelas ini.</p>
+            ) : (
+              <>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field label="Siswa">
+                    <select
+                      className={inputClass}
+                      value={namaAktif}
+                      onChange={(e) => {
+                        setPenerima(e.target.value);
+                        setPilih([]);
+                      }}
+                    >
+                      {siswaKelas.map((s) => (
+                        <option key={s.nisn}>{s.nama}</option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Tanggal Pengembalian">
+                    <input type="date" className={inputClass} value={tanggal} onChange={(e) => setTanggal(e.target.value)} />
+                  </Field>
+                  <Field label="Kondisi Buku">
+                    <select className={inputClass} value={kondisi} onChange={(e) => setKondisi(e.target.value as Kondisi)}>
+                      <option>Baik</option>
+                      <option>Rusak Ringan</option>
+                      <option>Rusak Berat</option>
+                      <option>Hilang</option>
+                    </select>
+                  </Field>
+                  <Field label="Catatan Kondisi">
+                    <textarea
+                      rows={3}
+                      className={inputClass}
+                      placeholder="Contoh: sampul sobek di bagian belakang"
+                      value={catatan}
+                      onChange={(e) => setCatatan(e.target.value)}
+                    />
+                  </Field>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-semibold text-muted-foreground">Buku yang sedang dipinjam</p>
+                  {dipinjam.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">Siswa ini tidak memiliki buku pinjaman aktif.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {dipinjam.map((d) => (
+                        <li key={d.id} className="flex items-center gap-3 rounded-xl border border-border px-4 py-3">
+                          <input type="checkbox" checked={pilih.includes(d.id)} onChange={() => toggle(d.id)} />
+                          <span className="text-sm font-medium">{d.buku}</span>
+                          <span className="text-xs text-muted-foreground">{d.bukuKode}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <button
+                  onClick={simpan}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+                >
+                  <Save className="size-4" /> Simpan Pengembalian
+                </button>
+              </>
+            )}
+          </div>
         ) : (
           <div className="space-y-3">
             {pengajuan.length === 0 ? (

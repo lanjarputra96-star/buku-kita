@@ -31,7 +31,7 @@ function cetakSurat(items: TransaksiItem[], nama: string, kelas: string, wali: s
     ol{padding-left:18px}
     .ttd{display:flex;justify-content:space-between;margin-top:40px}
     .ttd div{width:45%;text-align:center}
-    .garis{margin-top:70px;border-bottom:1px solid #333}
+    .garis{margin-top:70px}
   </style></head><body>
   <h1>Surat Pernyataan Peminjaman Buku</h1>
   <div class="sub">${sekolah} — ${kota}</div>
