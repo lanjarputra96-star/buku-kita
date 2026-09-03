@@ -22,7 +22,7 @@ function DataSiswa() {
   const [q, setQ] = useState("");
   const [kelas, setKelas] = useState("");
   const [openForm, setOpenForm] = useState(false);
-  const [form, setForm] = useState<Siswa>({ nisn: "", nama: "", kelas: KELAS_LIST[0]!, wali: "", wa: "", dipinjam: 0 });
+  const [form, setForm] = useState<Siswa>({ nisn: "", nama: "", kelas: "", wali: "", wa: "", dipinjam: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
   const [info, setInfo] = useState("");
 
@@ -115,11 +115,12 @@ function DataSiswa() {
               <input className={input} value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} />
             </Field>
             <Field label="Kelas">
-              <select className={input} value={form.kelas} onChange={(e) => setForm({ ...form, kelas: e.target.value })}>
-                {kelasOptions.map((k) => (
-                  <option key={k}>{k}</option>
-                ))}
-              </select>
+              <input
+                className={input}
+                value={form.kelas}
+                onChange={(e) => setForm({ ...form, kelas: e.target.value })}
+                placeholder="Contoh: 5A"
+              />
             </Field>
             <Field label="Wali Murid">
               <input className={input} value={form.wali} onChange={(e) => setForm({ ...form, wali: e.target.value })} />
@@ -135,7 +136,7 @@ function DataSiswa() {
                 if (!form.nama.trim()) return;
                 update((s) => ({ ...s, siswa: [form, ...s.siswa] }));
                 log(`Menambah siswa ${form.nama}`, "Data Siswa");
-                setForm({ nisn: "", nama: "", kelas: KELAS_LIST[0]!, wali: "", wa: "", dipinjam: 0 });
+                setForm({ nisn: "", nama: "", kelas: "", wali: "", wa: "", dipinjam: 0 });
                 setOpenForm(false);
               }}
             >
