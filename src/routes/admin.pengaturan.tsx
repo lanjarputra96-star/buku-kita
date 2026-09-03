@@ -29,6 +29,8 @@ function PengaturanPage() {
     nipKepala: p.nipKepala,
     penanggungJawab: p.penanggungJawab,
     nipPenanggung: p.nipPenanggung,
+    botNama: p.botNama ?? "Chatbot SIBUDI",
+    botWa: p.botWa ?? "",
   });
   const [profilMsg, setProfilMsg] = useState("");
 
