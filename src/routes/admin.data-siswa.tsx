@@ -115,11 +115,12 @@ function DataSiswa() {
               <input className={input} value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} />
             </Field>
             <Field label="Kelas">
-              <select className={input} value={form.kelas} onChange={(e) => setForm({ ...form, kelas: e.target.value })}>
-                {kelasOptions.map((k) => (
-                  <option key={k}>{k}</option>
-                ))}
-              </select>
+              <input
+                className={input}
+                value={form.kelas}
+                onChange={(e) => setForm({ ...form, kelas: e.target.value })}
+                placeholder="Contoh: 5A"
+              />
             </Field>
             <Field label="Wali Murid">
               <input className={input} value={form.wali} onChange={(e) => setForm({ ...form, wali: e.target.value })} />
