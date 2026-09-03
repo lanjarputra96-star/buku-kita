@@ -104,6 +104,17 @@ function PengaturanPage() {
           <Field label="NIP Penanggung Jawab">
             <input className={input} value={profil.nipPenanggung} onChange={(e) => setProfil({ ...profil, nipPenanggung: e.target.value })} />
           </Field>
+          <Field label="Nama Chatbot WhatsApp Sekolah">
+            <input className={input} value={profil.botNama} onChange={(e) => setProfil({ ...profil, botNama: e.target.value })} />
+          </Field>
+          <Field label="Nomor WhatsApp Chatbot Sekolah">
+            <input
+              className={input}
+              placeholder="Contoh: 0812xxxxxxx"
+              value={profil.botWa}
+              onChange={(e) => setProfil({ ...profil, botWa: e.target.value })}
+            />
+          </Field>
         </div>
         {profilMsg ? <p className="mt-3 text-xs font-semibold text-primary">{profilMsg}</p> : null}
         <button
