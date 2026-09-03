@@ -22,7 +22,7 @@ function DataSiswa() {
   const [q, setQ] = useState("");
   const [kelas, setKelas] = useState("");
   const [openForm, setOpenForm] = useState(false);
-  const [form, setForm] = useState<Siswa>({ nisn: "", nama: "", kelas: KELAS_LIST[0]!, wali: "", wa: "", dipinjam: 0 });
+  const [form, setForm] = useState<Siswa>({ nisn: "", nama: "", kelas: "", wali: "", wa: "", dipinjam: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
   const [info, setInfo] = useState("");
 
