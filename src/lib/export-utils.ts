@@ -120,3 +120,76 @@ export function exportWordReport(opts: {
 
   download(new Blob([html], { type: "application/msword" }), opts.filename);
 }
+
+/** Kartu perpustakaan ukuran KTP (85.6 x 54 mm), beberapa kartu per halaman A4. */
+export async function exportKartuPdf(opts: {
+  sekolah: string;
+  penanggungJawab?: string;
+  siswa: { nisn: string; nama: string; kelas: string }[];
+  filename: string;
+}) {
+  const { jsPDF } = await import("jspdf");
+  const JsBarcode = (await import("jsbarcode")).default;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+  const CW = 85.6;
+  const CH = 54;
+  const cols = 2;
+  const rows = 5;
+  const gap = 4;
+  const totalW = cols * CW + (cols - 1) * gap;
+  const totalH = rows * CH + (rows - 1) * gap;
+  const offX = (210 - totalW) / 2;
+  const offY = (297 - totalH) / 2;
+
+  const barcode = (value: string) => {
+    const canvas = document.createElement("canvas");
+    try {
+      JsBarcode(canvas, value || "0000", { format: "CODE128", displayValue: false, margin: 0, width: 2, height: 60 });
+      return canvas.toDataURL("image/png");
+    } catch {
+      return null;
+    }
+  };
+
+  opts.siswa.forEach((s, i) => {
+    const idx = i % (cols * rows);
+    if (i > 0 && idx === 0) doc.addPage();
+    const x = offX + (idx % cols) * (CW + gap);
+    const y = offY + Math.floor(idx / cols) * (CH + gap);
+
+    // bingkai + header
+    doc.setDrawColor(200);
+    doc.roundedRect(x, y, CW, CH, 2, 2);
+    doc.setFillColor(72, 110, 88);
+    doc.rect(x, y, CW, 11, "F");
+    doc.setTextColor(255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8.5);
+    doc.text(opts.sekolah.toUpperCase(), x + 4, y + 5);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(6.5);
+    doc.text("KARTU ANGGOTA PERPUSTAKAAN", x + 4, y + 9);
+
+    doc.setTextColor(30);
+    doc.setFontSize(6.5);
+    doc.text("Nama", x + 4, y + 18);
+    doc.text("NISN", x + 4, y + 24);
+    doc.text("Kelas", x + 4, y + 30);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text(`: ${s.nama}`.slice(0, 34), x + 16, y + 18);
+    doc.text(`: ${s.nisn}`, x + 16, y + 24);
+    doc.text(`: ${s.kelas}`, x + 16, y + 30);
+
+    const img = barcode(s.nisn);
+    if (img) doc.addImage(img, "PNG", x + 4, y + 33, CW - 8, 12);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(6);
+    doc.setTextColor(90);
+    doc.text(s.nisn, x + CW / 2, y + 48, { align: "center" });
+    if (opts.penanggungJawab) doc.text(opts.penanggungJawab.slice(0, 30), x + CW - 4, y + 52, { align: "right" });
+  });
+
+  doc.save(opts.filename);
+}
