@@ -16,7 +16,7 @@ const btnPrimary =
 const input =
   "w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring";
 
-type Jenis = "distribusi" | "kerusakan" | "rekap";
+type Jenis = "distribusi" | "kerusakan" | "rekap" | "kunjungan";
 
 function LaporanPage() {
   const { state } = useSibudi();
@@ -28,6 +28,10 @@ function LaporanPage() {
 
   const distribusi = useMemo(() => state.distribusi.filter((d) => inRange(d.tanggal)), [state.distribusi, dari, sampai]);
   const pengembalian = useMemo(() => state.pengembalian.filter((p) => inRange(p.tanggal)), [state.pengembalian, dari, sampai]);
+  const kunjungan = useMemo(
+    () => state.kunjungan.filter((k) => inRange(k.tanggal)),
+    [state.kunjungan, dari, sampai],
+  );
   const rusak = useMemo(
     () => pengembalian.filter((p) => p.kondisi && p.kondisi !== "Baik"),
     [pengembalian],
@@ -40,6 +44,15 @@ function LaporanPage() {
           heading: "Laporan Distribusi Buku",
           head: ["ID", "Tanggal", "Tipe", "Penerima", "Kelas", "Buku", "Jumlah", "Status"],
           body: distribusi.map((d) => [d.id, fmtTanggal(d.tanggal), d.tipe, d.penerima, d.kelas, d.buku, d.jumlah, d.status]),
+        },
+      ];
+    }
+    if (jenis === "kunjungan") {
+      return [
+        {
+          heading: "Laporan Kunjungan Perpustakaan",
+          head: ["Tanggal", "Jam", "NISN", "Nama", "Kelas", "Keperluan"],
+          body: kunjungan.map((k) => [fmtTanggal(k.tanggal), k.jam, k.nisn, k.nama, k.kelas, k.keperluan]),
         },
       ];
     }
@@ -63,14 +76,15 @@ function LaporanPage() {
           ["Eksemplar didistribusikan", distribusi.reduce((a, d) => a + d.jumlah, 0)],
           ["Transaksi pengembalian", pengembalian.length],
           ["Buku rusak / hilang", rusak.reduce((a, p) => a + p.jumlah, 0)],
+          ["Kunjungan perpustakaan", kunjungan.length],
           ["Masih dipinjam", distribusi.filter((d) => d.status === "Dipinjam").reduce((a, d) => a + d.jumlah, 0)],
         ] as (string | number)[][],
       },
     ];
-  }, [jenis, distribusi, pengembalian, rusak, state.buku]);
+  }, [jenis, distribusi, pengembalian, rusak, kunjungan, state.buku]);
 
   const judul =
-    jenis === "distribusi" ? "Laporan Distribusi Buku" : jenis === "kerusakan" ? "Laporan Buku Rusak / Hilang" : "Rekapitulasi Akhir";
+    jenis === "distribusi" ? "Laporan Distribusi Buku" : jenis === "kerusakan" ? "Laporan Buku Rusak / Hilang" : jenis === "kunjungan" ? "Laporan Kunjungan Perpustakaan" : "Rekapitulasi Akhir";
   const subtitle = `${state.pengaturan.namaSekolah} — Periode ${fmtTanggal(dari)} s.d. ${fmtTanggal(sampai)}`;
   const signatures = {
     kepalaSekolah: state.pengaturan.kepalaSekolah,
@@ -132,6 +146,7 @@ function LaporanPage() {
             <select className={input} value={jenis} onChange={(e) => setJenis(e.target.value as Jenis)}>
               <option value="distribusi">Laporan Distribusi</option>
               <option value="kerusakan">Laporan Buku Rusak / Hilang</option>
+              <option value="kunjungan">Laporan Kunjungan Perpustakaan</option>
               <option value="rekap">Rekapitulasi Akhir</option>
             </select>
           </Field>
@@ -141,6 +156,7 @@ function LaporanPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Distribusi" value={distribusi.length} hint="transaksi pada periode" icon={<BarChart3 className="size-5" />} />
         <StatCard label="Pengembalian" value={pengembalian.length} hint="transaksi pada periode" tone="success" />
+        <StatCard label="Kunjungan" value={kunjungan.length} hint="kunjungan pada periode" tone="warning" />
         <StatCard label="Rusak / Hilang" value={rusak.reduce((a, p) => a + p.jumlah, 0)} hint="eksemplar" tone="danger" />
         <StatCard
           label="Masih Dipinjam"

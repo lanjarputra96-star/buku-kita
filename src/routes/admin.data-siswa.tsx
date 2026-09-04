@@ -1,9 +1,9 @@
 import { useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Upload, Download, Search, FileText, Trash2 } from "lucide-react";
+import { Plus, Upload, Download, Search, FileText, Trash2, IdCard } from "lucide-react";
 import { PageHeader, Panel, DataTable, Td, Badge, Field } from "@/components/sibudi/ui-kit";
 import { useSibudi, KELAS_LIST } from "@/lib/sibudi-store";
-import { exportExcel, exportPdfTable, importExcel } from "@/lib/export-utils";
+import { exportExcel, exportKartuPdf, exportPdfTable, importExcel } from "@/lib/export-utils";
 import type { Siswa } from "@/lib/sibudi-data";
 
 export const Route = createFileRoute("/admin/data-siswa")({
@@ -96,6 +96,36 @@ function DataSiswa() {
             >
               <FileText className="size-4" /> Export PDF
             </button>
+            <button
+              className={btnGhost}
+              onClick={() => {
+                if (rows.length === 0) {
+                  setInfo("Tidak ada siswa untuk dicetak.");
+                  return;
+                }
+                void exportKartuPdf({
+                  sekolah: state.pengaturan.namaSekolah,
+                  penanggungJawab: state.pengaturan.penanggungJawab,
+                  siswa: rows.map((s) => ({ nisn: s.nisn, nama: s.nama, kelas: s.kelas })),
+                  filename: `kartu-perpustakaan-${kelas || "semua"}.pdf`,
+                });
+                setInfo(`${rows.length} kartu perpustakaan diunduh (PDF).`);
+              }}
+            >
+              <IdCard className="size-4" /> Cetak Kartu
+            </button>
+            <button
+              className="inline-flex items-center gap-2 rounded-xl border border-destructive/40 bg-card px-4 py-2.5 text-xs font-semibold text-destructive hover:bg-destructive/10"
+              onClick={() => {
+                if (state.siswa.length === 0) return;
+                if (!confirm(`Hapus SEMUA ${state.siswa.length} data siswa? Tindakan ini tidak bisa dibatalkan.`)) return;
+                update((s) => ({ ...s, siswa: [] }));
+                log("Menghapus semua data siswa", "Data Siswa");
+                setInfo("Semua data siswa telah dihapus.");
+              }}
+            >
+              <Trash2 className="size-4" /> Hapus Semua
+            </button>
             <button className={btnPrimary} onClick={() => setOpenForm((v) => !v)}>
               <Plus className="size-4" /> Tambah Siswa
             </button>
@@ -180,12 +210,27 @@ function DataSiswa() {
                 <Badge tone={s.dipinjam > 3 ? "warning" : "primary"}>{s.dipinjam} buku</Badge>
               </Td>
               <Td>
-                <button
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-destructive hover:underline"
-                  onClick={() => update((st) => ({ ...st, siswa: st.siswa.filter((x) => x.nisn !== s.nisn) }))}
-                >
-                  <Trash2 className="size-3.5" /> Hapus
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                    onClick={() =>
+                      void exportKartuPdf({
+                        sekolah: state.pengaturan.namaSekolah,
+                        penanggungJawab: state.pengaturan.penanggungJawab,
+                        siswa: [{ nisn: s.nisn, nama: s.nama, kelas: s.kelas }],
+                        filename: `kartu-${s.nisn}.pdf`,
+                      })
+                    }
+                  >
+                    <IdCard className="size-3.5" /> Kartu
+                  </button>
+                  <button
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-destructive hover:underline"
+                    onClick={() => update((st) => ({ ...st, siswa: st.siswa.filter((x) => x.nisn !== s.nisn) }))}
+                  >
+                    <Trash2 className="size-3.5" /> Hapus
+                  </button>
+                </div>
               </Td>
             </tr>
           ))}

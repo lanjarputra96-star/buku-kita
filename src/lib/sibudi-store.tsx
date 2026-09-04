@@ -50,6 +50,16 @@ export type TransaksiItem = {
 
 export type LogItem = { waktu: string; aktor: string; aksi: string; tipe: string };
 
+export type Kunjungan = {
+  id: string;
+  nisn: string;
+  nama: string;
+  kelas: string;
+  tanggal: string; // yyyy-mm-dd
+  jam: string; // HH:MM
+  keperluan: string;
+};
+
 export type Pengaturan = {
   adminUser: string;
   adminPass: string;
@@ -71,6 +81,7 @@ export type SibudiState = {
   riwayat: LogItem[];
   notifikasi: Notif[];
   pesanWa: PesanWa[];
+  kunjungan: Kunjungan[];
   pengaturan: Pengaturan;
   adminLoggedIn: boolean;
   guruLoggedIn: string | null;
@@ -86,6 +97,7 @@ const initialState: SibudiState = {
   guru: [],
   notifikasi: [],
   pesanWa: [],
+  kunjungan: [],
   distribusi: [],
   pengembalian: [],
   riwayat: [],
@@ -127,6 +139,7 @@ function mergeShared(base: SibudiState, data: Partial<SharedState> | null): Sibu
     riwayat: data.riwayat ?? base.riwayat,
     notifikasi: data.notifikasi ?? base.notifikasi,
     pesanWa: data.pesanWa ?? base.pesanWa,
+    kunjungan: data.kunjungan ?? base.kunjungan,
   };
 }
 
