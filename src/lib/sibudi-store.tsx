@@ -60,6 +60,20 @@ export type Kunjungan = {
   keperluan: string;
 };
 
+export type KartuSetting = {
+  judul: string;
+  subjudul: string;
+  warnaHeader: string; // hex
+  logo: string; // data URL, kosong = tanpa logo
+  tampilkanFoto: boolean;
+  tampilkanBarcode: boolean;
+  tampilkanKelas: boolean;
+  tampilkanPenanggung: boolean;
+  catatan: string;
+  kolom: number;
+  baris: number;
+};
+
 export type Pengaturan = {
   adminUser: string;
   adminPass: string;
@@ -70,7 +84,23 @@ export type Pengaturan = {
   nipPenanggung: string;
   botNama: string;
   botWa: string;
+  kartu: KartuSetting;
 };
+
+export const defaultKartu: KartuSetting = {
+  judul: "KARTU ANGGOTA PERPUSTAKAAN",
+  subjudul: "",
+  warnaHeader: "#486E58",
+  logo: "",
+  tampilkanFoto: true,
+  tampilkanBarcode: true,
+  tampilkanKelas: true,
+  tampilkanPenanggung: true,
+  catatan: "Kartu ini wajib dibawa saat meminjam buku.",
+  kolom: 2,
+  baris: 5,
+};
+
 
 export type SibudiState = {
   buku: Buku[];
