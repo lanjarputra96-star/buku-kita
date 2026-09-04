@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as GuruRouteImport } from './routes/guru'
 import { Route as OrtuRouteImport } from './routes/ortu'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAbsensiRouteImport } from './routes/admin.absensi'
 import { Route as AdminDataGuruRouteImport } from './routes/admin.data-guru'
 import { Route as AdminDataSiswaRouteImport } from './routes/admin.data-siswa'
 import { Route as AdminDistribusiRouteImport } from './routes/admin.distribusi'
@@ -59,6 +60,11 @@ const OrtuRoute = OrtuRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAbsensiRoute = AdminAbsensiRouteImport.update({
+  id: '/absensi',
+  path: '/absensi',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminDataGuruRoute = AdminDataGuruRouteImport.update({
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/guru': typeof GuruRouteWithChildren
   '/ortu': typeof OrtuRouteWithChildren
+  '/admin/absensi': typeof AdminAbsensiRoute
   '/admin/data-guru': typeof AdminDataGuruRoute
   '/admin/data-siswa': typeof AdminDataSiswaRoute
   '/admin/distribusi': typeof AdminDistribusiRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/absensi': typeof AdminAbsensiRoute
   '/admin/data-guru': typeof AdminDataGuruRoute
   '/admin/data-siswa': typeof AdminDataSiswaRoute
   '/admin/distribusi': typeof AdminDistribusiRoute
@@ -226,6 +234,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/guru': typeof GuruRouteWithChildren
   '/ortu': typeof OrtuRouteWithChildren
+  '/admin/absensi': typeof AdminAbsensiRoute
   '/admin/data-guru': typeof AdminDataGuruRoute
   '/admin/data-siswa': typeof AdminDataSiswaRoute
   '/admin/distribusi': typeof AdminDistribusiRoute
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/guru'
     | '/ortu'
+    | '/admin/absensi'
     | '/admin/data-guru'
     | '/admin/data-siswa'
     | '/admin/distribusi'
@@ -281,6 +291,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin/absensi'
     | '/admin/data-guru'
     | '/admin/data-siswa'
     | '/admin/distribusi'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/guru'
     | '/ortu'
+    | '/admin/absensi'
     | '/admin/data-guru'
     | '/admin/data-siswa'
     | '/admin/distribusi'
@@ -375,6 +387,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/absensi': {
+      id: '/admin/absensi'
+      path: '/absensi'
+      fullPath: '/admin/absensi'
+      preLoaderRoute: typeof AdminAbsensiRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/data-guru': {
@@ -528,6 +547,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAbsensiRoute: typeof AdminAbsensiRoute
   AdminDataGuruRoute: typeof AdminDataGuruRoute
   AdminDataSiswaRoute: typeof AdminDataSiswaRoute
   AdminDistribusiRoute: typeof AdminDistribusiRoute
@@ -540,6 +560,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAbsensiRoute: AdminAbsensiRoute,
   AdminDataGuruRoute: AdminDataGuruRoute,
   AdminDataSiswaRoute: AdminDataSiswaRoute,
   AdminDistribusiRoute: AdminDistribusiRoute,

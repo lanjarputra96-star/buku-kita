@@ -9,6 +9,7 @@ import {
   History,
   BarChart3,
   Settings,
+  ScanLine,
 } from "lucide-react";
 import { DashboardShell, type NavItem } from "@/components/sibudi/dashboard-shell";
 import { AdminLoginGate } from "@/components/sibudi/admin-login";
@@ -34,6 +35,7 @@ const items: NavItem[] = [
   { to: "/admin/data-guru", label: "Data Guru", icon: Users },
   { to: "/admin/distribusi", label: "Distribusi Buku", icon: PackagePlus },
   { to: "/admin/pengembalian", label: "Pengembalian", icon: RefreshCw },
+  { to: "/admin/absensi", label: "Absensi Pengunjung", icon: ScanLine },
   { to: "/admin/riwayat", label: "Riwayat", icon: History },
   { to: "/admin/laporan", label: "Laporan", icon: BarChart3 },
   { to: "/admin/pengaturan", label: "Pengaturan", icon: Settings },
