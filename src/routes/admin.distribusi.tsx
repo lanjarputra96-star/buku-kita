@@ -24,6 +24,8 @@ function DistribusiPage() {
   const [tanggal, setTanggal] = useState(new Date().toISOString().slice(0, 10));
   const [picked, setPicked] = useState<string[]>([]);
   const [info, setInfo] = useState("");
+  const [scanKartu, setScanKartu] = useState("");
+  const [scanBuku, setScanBuku] = useState("");
 
   const kandidat = useMemo(() => {
     if (tipe === "Guru") {
@@ -120,6 +122,59 @@ function DistribusiPage() {
             <input type="date" className={input} value={tanggal} onChange={(e) => setTanggal(e.target.value)} />
           </Field>
         </div>
+
+        <div className="mt-5 grid gap-4 rounded-xl border border-dashed border-border p-4 md:grid-cols-2">
+          <Field label="Scan Kartu Siswa/Guru (barcode NISN atau NIP)">
+            <input
+              className={input}
+              placeholder="Arahkan pemindai ke kartu…"
+              value={scanKartu}
+              onChange={(e) => setScanKartu(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                e.preventDefault();
+                const kode = scanKartu.trim();
+                setScanKartu("");
+                if (!kode) return;
+                const s = state.siswa.find((x) => x.nisn === kode);
+                const g = state.guru.find((x) => x.nip === kode);
+                if (!s && !g) {
+                  setInfo(`Kartu ${kode} tidak dikenali.`);
+                  return;
+                }
+                const target = s ?? g!;
+                const id = s ? s.nisn : g!.nip;
+                setTipe(s ? "Siswa" : "Guru");
+                setKelas("");
+                setPicked((p) => (p.includes(id) ? p : [...p, id]));
+                setInfo(`${target.nama} ditambahkan sebagai penerima.`);
+              }}
+            />
+          </Field>
+          <Field label="Scan Barcode Buku">
+            <input
+              className={input}
+              placeholder="Arahkan pemindai ke barcode buku…"
+              value={scanBuku}
+              onChange={(e) => setScanBuku(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                e.preventDefault();
+                const kode = scanBuku.trim();
+                setScanBuku("");
+                if (!kode) return;
+                const b = state.buku.find((x) => x.kode === kode || x.judul.toLowerCase() === kode.toLowerCase());
+                if (!b) {
+                  setInfo(`Buku dengan kode ${kode} tidak ditemukan.`);
+                  return;
+                }
+                setBukuKode(b.kode);
+                setInfo(`Buku terpilih: ${b.judul}.`);
+              }}
+            />
+          </Field>
+        </div>
+
 
         <div className="mt-5 flex flex-wrap items-center gap-2">
           <button
