@@ -246,6 +246,42 @@ function DataSiswa() {
           ))}
         </DataTable>
       </Panel>
+
+      {preview ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
+          <div className="flex h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-card shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
+              <p className="text-sm font-bold">Pratinjau Kartu ({preview.siswa.length} kartu)</p>
+              <div className="flex gap-2">
+                <button
+                  className={btnPrimary}
+                  onClick={() => {
+                    const a = document.createElement("a");
+                    a.href = preview.url;
+                    a.download = preview.filename;
+                    a.click();
+                    setInfo(`${preview.siswa.length} kartu perpustakaan diunduh (PDF).`);
+                    URL.revokeObjectURL(preview.url);
+                    setPreview(null);
+                  }}
+                >
+                  <Download className="size-4" /> Unduh PDF
+                </button>
+                <button
+                  className={btnGhost}
+                  onClick={() => {
+                    URL.revokeObjectURL(preview.url);
+                    setPreview(null);
+                  }}
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+            <iframe title="Pratinjau Kartu Perpustakaan" src={preview.url} className="min-h-0 flex-1" />
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
