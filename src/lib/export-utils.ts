@@ -271,6 +271,8 @@ export async function exportKartuPdf(opts: {
     }
   });
 
+  if (opts.preview) return doc.output("bloburl").toString();
   doc.save(opts.filename);
+  return null;
 }
 
