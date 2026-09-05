@@ -153,7 +153,20 @@ export async function exportKartuPdf(opts: {
   const { jsPDF } = await import("jspdf");
   const JsBarcode = (await import("jsbarcode")).default;
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const k = opts.kartu;
+  const k: KartuOpsi = {
+    judul: "KARTU ANGGOTA PERPUSTAKAAN",
+    subjudul: "",
+    warnaHeader: "#486E58",
+    logo: "",
+    tampilkanFoto: true,
+    tampilkanBarcode: true,
+    tampilkanKelas: true,
+    tampilkanPenanggung: true,
+    catatan: "",
+    kolom: 2,
+    baris: 5,
+    ...(opts.kartu ?? {}),
+  };
 
   const CW = 85.6;
   const CH = 54;
