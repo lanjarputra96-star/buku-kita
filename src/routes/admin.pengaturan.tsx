@@ -149,7 +149,7 @@ function PengaturanPage() {
 
 function KartuPanel() {
   const { state, update, log } = useSibudi();
-  const [k, setK] = useState({ ...defaultKartu, ...(state.pengaturan.kartu ?? {}) });
+  const [k, setK] = useState<KartuSetting>({ ...defaultKartu, ...(state.pengaturan.kartu ?? {}) });
   const [msg, setMsg] = useState("");
 
   function pilihLogo(file: File) {
