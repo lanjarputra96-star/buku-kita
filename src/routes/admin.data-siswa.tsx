@@ -25,6 +25,23 @@ function DataSiswa() {
   const [form, setForm] = useState<Siswa>({ nisn: "", nama: "", kelas: "", wali: "", wa: "", dipinjam: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
   const [info, setInfo] = useState("");
+  const [preview, setPreview] = useState<{
+    url: string;
+    filename: string;
+    siswa: { nisn: string; nama: string; kelas: string }[];
+  } | null>(null);
+
+  async function bukaPreviewKartu(list: { nisn: string; nama: string; kelas: string }[], filename: string) {
+    const url = await exportKartuPdf({
+      sekolah: state.pengaturan.namaSekolah,
+      penanggungJawab: state.pengaturan.penanggungJawab,
+      siswa: list,
+      filename,
+      kartu: state.pengaturan.kartu,
+      preview: true,
+    });
+    if (url) setPreview({ url, filename, siswa: list });
+  }
 
   const kelasOptions = useMemo(
     () => Array.from(new Set([...KELAS_LIST, ...state.siswa.map((s) => s.kelas)])).sort(),
