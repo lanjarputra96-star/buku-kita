@@ -229,13 +229,7 @@ function DataSiswa() {
                   <button
                     className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                     onClick={() =>
-                      void exportKartuPdf({
-                        sekolah: state.pengaturan.namaSekolah,
-                        penanggungJawab: state.pengaturan.penanggungJawab,
-                        siswa: [{ nisn: s.nisn, nama: s.nama, kelas: s.kelas }],
-                        filename: `kartu-${s.nisn}.pdf`,
-                        kartu: state.pengaturan.kartu,
-                      })
+                      void bukaPreviewKartu([{ nisn: s.nisn, nama: s.nama, kelas: s.kelas }], `kartu-${s.nisn}.pdf`)
                     }
                   >
                     <IdCard className="size-3.5" /> Kartu
