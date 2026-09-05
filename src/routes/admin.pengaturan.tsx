@@ -129,6 +129,9 @@ function PengaturanPage() {
         </button>
       </Panel>
 
+      <KartuPanel />
+
+
       <Panel title="Akun Guru" desc="Password guru diatur pada menu Data Guru → Edit → Reset Password.">
         <ul className="space-y-2 text-sm">
           {state.guru.map((g) => (
