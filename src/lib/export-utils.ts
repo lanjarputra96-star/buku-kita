@@ -148,7 +148,7 @@ export async function exportKartuPdf(opts: {
   penanggungJawab?: string;
   siswa: { nisn: string; nama: string; kelas: string }[];
   filename: string;
-  kartu: KartuOpsi;
+  kartu?: Partial<KartuOpsi>;
 }) {
   const { jsPDF } = await import("jspdf");
   const JsBarcode = (await import("jsbarcode")).default;
