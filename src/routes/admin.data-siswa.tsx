@@ -25,6 +25,23 @@ function DataSiswa() {
   const [form, setForm] = useState<Siswa>({ nisn: "", nama: "", kelas: "", wali: "", wa: "", dipinjam: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
   const [info, setInfo] = useState("");
+  const [preview, setPreview] = useState<{
+    url: string;
+    filename: string;
+    siswa: { nisn: string; nama: string; kelas: string }[];
+  } | null>(null);
+
+  async function bukaPreviewKartu(list: { nisn: string; nama: string; kelas: string }[], filename: string) {
+    const url = await exportKartuPdf({
+      sekolah: state.pengaturan.namaSekolah,
+      penanggungJawab: state.pengaturan.penanggungJawab,
+      siswa: list,
+      filename,
+      kartu: state.pengaturan.kartu,
+      preview: true,
+    });
+    if (url) setPreview({ url, filename, siswa: list });
+  }
 
   const kelasOptions = useMemo(
     () => Array.from(new Set([...KELAS_LIST, ...state.siswa.map((s) => s.kelas)])).sort(),
@@ -103,14 +120,11 @@ function DataSiswa() {
                   setInfo("Tidak ada siswa untuk dicetak.");
                   return;
                 }
-                void exportKartuPdf({
-                  sekolah: state.pengaturan.namaSekolah,
-                  penanggungJawab: state.pengaturan.penanggungJawab,
-                  siswa: rows.map((s) => ({ nisn: s.nisn, nama: s.nama, kelas: s.kelas })),
-                  filename: `kartu-perpustakaan-${kelas || "semua"}.pdf`,
-                  kartu: state.pengaturan.kartu,
-                });
-                setInfo(`${rows.length} kartu perpustakaan diunduh (PDF).`);
+                void bukaPreviewKartu(
+                  rows.map((s) => ({ nisn: s.nisn, nama: s.nama, kelas: s.kelas })),
+                  `kartu-perpustakaan-${kelas || "semua"}.pdf`,
+                );
+                setInfo("");
               }}
             >
               <IdCard className="size-4" /> Cetak Kartu
@@ -215,13 +229,7 @@ function DataSiswa() {
                   <button
                     className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                     onClick={() =>
-                      void exportKartuPdf({
-                        sekolah: state.pengaturan.namaSekolah,
-                        penanggungJawab: state.pengaturan.penanggungJawab,
-                        siswa: [{ nisn: s.nisn, nama: s.nama, kelas: s.kelas }],
-                        filename: `kartu-${s.nisn}.pdf`,
-                        kartu: state.pengaturan.kartu,
-                      })
+                      void bukaPreviewKartu([{ nisn: s.nisn, nama: s.nama, kelas: s.kelas }], `kartu-${s.nisn}.pdf`)
                     }
                   >
                     <IdCard className="size-3.5" /> Kartu
@@ -238,6 +246,42 @@ function DataSiswa() {
           ))}
         </DataTable>
       </Panel>
+
+      {preview ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
+          <div className="flex h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-card shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
+              <p className="text-sm font-bold">Pratinjau Kartu ({preview.siswa.length} kartu)</p>
+              <div className="flex gap-2">
+                <button
+                  className={btnPrimary}
+                  onClick={() => {
+                    const a = document.createElement("a");
+                    a.href = preview.url;
+                    a.download = preview.filename;
+                    a.click();
+                    setInfo(`${preview.siswa.length} kartu perpustakaan diunduh (PDF).`);
+                    URL.revokeObjectURL(preview.url);
+                    setPreview(null);
+                  }}
+                >
+                  <Download className="size-4" /> Unduh PDF
+                </button>
+                <button
+                  className={btnGhost}
+                  onClick={() => {
+                    URL.revokeObjectURL(preview.url);
+                    setPreview(null);
+                  }}
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+            <iframe title="Pratinjau Kartu Perpustakaan" src={preview.url} className="min-h-0 flex-1" />
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

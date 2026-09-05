@@ -149,7 +149,9 @@ export async function exportKartuPdf(opts: {
   siswa: { nisn: string; nama: string; kelas: string }[];
   filename: string;
   kartu?: Partial<KartuOpsi>;
-}) {
+  /** true = kembalikan URL pratinjau (blob), tidak langsung mengunduh */
+  preview?: boolean;
+}): Promise<string | null> {
   const { jsPDF } = await import("jspdf");
   const JsBarcode = (await import("jsbarcode")).default;
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -269,6 +271,8 @@ export async function exportKartuPdf(opts: {
     }
   });
 
+  if (opts.preview) return doc.output("bloburl").toString();
   doc.save(opts.filename);
+  return null;
 }
 
