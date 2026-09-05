@@ -120,14 +120,11 @@ function DataSiswa() {
                   setInfo("Tidak ada siswa untuk dicetak.");
                   return;
                 }
-                void exportKartuPdf({
-                  sekolah: state.pengaturan.namaSekolah,
-                  penanggungJawab: state.pengaturan.penanggungJawab,
-                  siswa: rows.map((s) => ({ nisn: s.nisn, nama: s.nama, kelas: s.kelas })),
-                  filename: `kartu-perpustakaan-${kelas || "semua"}.pdf`,
-                  kartu: state.pengaturan.kartu,
-                });
-                setInfo(`${rows.length} kartu perpustakaan diunduh (PDF).`);
+                void bukaPreviewKartu(
+                  rows.map((s) => ({ nisn: s.nisn, nama: s.nama, kelas: s.kelas })),
+                  `kartu-perpustakaan-${kelas || "semua"}.pdf`,
+                );
+                setInfo("");
               }}
             >
               <IdCard className="size-4" /> Cetak Kartu
