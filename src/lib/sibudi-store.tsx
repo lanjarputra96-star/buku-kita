@@ -141,6 +141,7 @@ const initialState: SibudiState = {
     nipPenanggung: "",
     botNama: "Chatbot SIBUDI",
     botWa: "",
+    kartu: defaultKartu,
   },
   adminLoggedIn: false,
   guruLoggedIn: null,
@@ -160,7 +161,11 @@ function mergeShared(base: SibudiState, data: Partial<SharedState> | null): Sibu
   return {
     ...base,
     ...data,
-    pengaturan: { ...base.pengaturan, ...(data.pengaturan ?? {}) },
+    pengaturan: {
+      ...base.pengaturan,
+      ...(data.pengaturan ?? {}),
+      kartu: { ...defaultKartu, ...(data.pengaturan?.kartu ?? {}) },
+    },
     buku: data.buku ?? base.buku,
     siswa: data.siswa ?? base.siswa,
     guru: data.guru ?? base.guru,

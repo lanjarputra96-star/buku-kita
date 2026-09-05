@@ -108,6 +108,7 @@ function DataSiswa() {
                   penanggungJawab: state.pengaturan.penanggungJawab,
                   siswa: rows.map((s) => ({ nisn: s.nisn, nama: s.nama, kelas: s.kelas })),
                   filename: `kartu-perpustakaan-${kelas || "semua"}.pdf`,
+                  kartu: state.pengaturan.kartu,
                 });
                 setInfo(`${rows.length} kartu perpustakaan diunduh (PDF).`);
               }}
@@ -219,6 +220,7 @@ function DataSiswa() {
                         penanggungJawab: state.pengaturan.penanggungJawab,
                         siswa: [{ nisn: s.nisn, nama: s.nama, kelas: s.kelas }],
                         filename: `kartu-${s.nisn}.pdf`,
+                        kartu: state.pengaturan.kartu,
                       })
                     }
                   >

@@ -121,26 +121,50 @@ export function exportWordReport(opts: {
   download(new Blob([html], { type: "application/msword" }), opts.filename);
 }
 
+export type KartuOpsi = {
+  judul: string;
+  subjudul: string;
+  warnaHeader: string;
+  logo: string;
+  tampilkanFoto: boolean;
+  tampilkanBarcode: boolean;
+  tampilkanKelas: boolean;
+  tampilkanPenanggung: boolean;
+  catatan: string;
+  kolom: number;
+  baris: number;
+};
+
+function hexToRgb(hex: string): [number, number, number] {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m || !m[1]) return [72, 110, 88];
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
 /** Kartu perpustakaan ukuran KTP (85.6 x 54 mm), beberapa kartu per halaman A4. */
 export async function exportKartuPdf(opts: {
   sekolah: string;
   penanggungJawab?: string;
   siswa: { nisn: string; nama: string; kelas: string }[];
   filename: string;
+  kartu: KartuOpsi;
 }) {
   const { jsPDF } = await import("jspdf");
   const JsBarcode = (await import("jsbarcode")).default;
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const k = opts.kartu;
 
   const CW = 85.6;
   const CH = 54;
-  const cols = 2;
-  const rows = 5;
+  const cols = Math.max(1, Math.min(2, Math.round(k.kolom || 2)));
+  const rows = Math.max(1, Math.min(5, Math.round(k.baris || 5)));
   const gap = 4;
   const totalW = cols * CW + (cols - 1) * gap;
   const totalH = rows * CH + (rows - 1) * gap;
   const offX = (210 - totalW) / 2;
   const offY = (297 - totalH) / 2;
+  const [hr, hg, hb] = hexToRgb(k.warnaHeader);
 
   const barcode = (value: string) => {
     const canvas = document.createElement("canvas");
@@ -161,35 +185,77 @@ export async function exportKartuPdf(opts: {
     // bingkai + header
     doc.setDrawColor(200);
     doc.roundedRect(x, y, CW, CH, 2, 2);
-    doc.setFillColor(72, 110, 88);
-    doc.rect(x, y, CW, 11, "F");
+    doc.setFillColor(hr, hg, hb);
+    doc.rect(x, y, CW, 12, "F");
+    let textX = x + 4;
+    if (k.logo) {
+      try {
+        doc.addImage(k.logo, x + 3, y + 2, 8, 8);
+        textX = x + 13;
+      } catch {
+        /* logo tidak terbaca */
+      }
+    }
     doc.setTextColor(255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8.5);
-    doc.text(opts.sekolah.toUpperCase(), x + 4, y + 5);
+    doc.setFontSize(8);
+    doc.text(opts.sekolah.toUpperCase().slice(0, 40), textX, y + 5);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(6.5);
-    doc.text("KARTU ANGGOTA PERPUSTAKAAN", x + 4, y + 9);
+    doc.setFontSize(6.2);
+    doc.text(k.judul.toUpperCase().slice(0, 46), textX, y + 8.6);
+    if (k.subjudul) doc.text(k.subjudul.slice(0, 46), textX, y + 11.2);
+
+    // kotak foto 3x4 (kosong, untuk ditempel)
+    const photoW = 21;
+    const photoH = 28;
+    const photoX = x + CW - photoW - 4;
+    const photoY = y + 15;
+    if (k.tampilkanFoto) {
+      doc.setDrawColor(170);
+      doc.rect(photoX, photoY, photoW, photoH);
+      doc.setTextColor(150);
+      doc.setFontSize(5.5);
+      doc.text("FOTO 3x4", photoX + photoW / 2, photoY + photoH / 2, { align: "center" });
+    }
+
+    const infoRight = k.tampilkanFoto ? photoX - 2 : x + CW - 4;
+    const maxChars = k.tampilkanFoto ? 24 : 40;
 
     doc.setTextColor(30);
-    doc.setFontSize(6.5);
-    doc.text("Nama", x + 4, y + 18);
-    doc.text("NISN", x + 4, y + 24);
-    doc.text("Kelas", x + 4, y + 30);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.text(`: ${s.nama}`.slice(0, 34), x + 16, y + 18);
-    doc.text(`: ${s.nisn}`, x + 16, y + 24);
-    doc.text(`: ${s.kelas}`, x + 16, y + 30);
-
-    const img = barcode(s.nisn);
-    if (img) doc.addImage(img, "PNG", x + 4, y + 33, CW - 8, 12);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(6);
-    doc.setTextColor(90);
-    doc.text(s.nisn, x + CW / 2, y + 48, { align: "center" });
-    if (opts.penanggungJawab) doc.text(opts.penanggungJawab.slice(0, 30), x + CW - 4, y + 52, { align: "right" });
+    doc.setFontSize(6.5);
+    doc.text("Nama", x + 4, y + 19);
+    doc.text("NISN", x + 4, y + 25);
+    if (k.tampilkanKelas) doc.text("Kelas", x + 4, y + 31);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7.5);
+    doc.text(`: ${s.nama}`.slice(0, maxChars), x + 15, y + 19);
+    doc.text(`: ${s.nisn}`, x + 15, y + 25);
+    if (k.tampilkanKelas) doc.text(`: ${s.kelas}`, x + 15, y + 31);
+
+    if (k.tampilkanBarcode) {
+      const img = barcode(s.nisn);
+      if (img) doc.addImage(img, "PNG", x + 4, y + 34, Math.max(20, infoRight - (x + 4)), 9);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(5.5);
+      doc.setTextColor(90);
+      doc.text(s.nisn, x + 4, y + 46);
+    }
+
+    if (k.catatan) {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(5);
+      doc.setTextColor(120);
+      doc.text(k.catatan.slice(0, 52), x + 4, y + 50.5);
+    }
+    if (k.tampilkanPenanggung && opts.penanggungJawab) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(5.5);
+      doc.setTextColor(90);
+      doc.text(opts.penanggungJawab.slice(0, 26), x + CW - 4, y + 50.5, { align: "right" });
+    }
   });
 
   doc.save(opts.filename);
 }
+
