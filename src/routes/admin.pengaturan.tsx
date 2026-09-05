@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Save, ShieldCheck, UserCog } from "lucide-react";
 import { PageHeader, Panel, Field } from "@/components/sibudi/ui-kit";
-import { useSibudi } from "@/lib/sibudi-store";
+import { useSibudi, defaultKartu, type KartuSetting } from "@/lib/sibudi-store";
 
 export const Route = createFileRoute("/admin/pengaturan")({
   component: PengaturanPage,
@@ -149,7 +149,7 @@ function PengaturanPage() {
 
 function KartuPanel() {
   const { state, update, log } = useSibudi();
-  const [k, setK] = useState(state.pengaturan.kartu);
+  const [k, setK] = useState<KartuSetting>({ ...defaultKartu, ...(state.pengaturan.kartu ?? {}) });
   const [msg, setMsg] = useState("");
 
   function pilihLogo(file: File) {
