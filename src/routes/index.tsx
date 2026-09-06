@@ -11,6 +11,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { SCHOOL } from "@/lib/sibudi-data";
+import { useSibudi } from "@/lib/sibudi-store";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
