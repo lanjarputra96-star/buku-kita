@@ -107,13 +107,9 @@ function Landing() {
               pendataan buku, penyerahan ke siswa, sampai pengembalian dan laporan akhir semester.
             </p>
             <dl className="mt-9 grid max-w-md grid-cols-3 gap-4">
-              {[
-                ["1.248", "Buku terdata"],
-                ["386", "Siswa aktif"],
-                ["94%", "Tingkat kembali"],
-              ].map(([v, l]) => (
+              {stats.map(([v, l]) => (
                 <div key={l} className="card-surface p-4">
-                  <dt className="text-lg font-bold text-primary">{v}</dt>
+                  <dt className="text-lg font-bold text-primary">{ready ? v : "—"}</dt>
                   <dd className="text-[11px] text-muted-foreground">{l}</dd>
                 </div>
               ))}
