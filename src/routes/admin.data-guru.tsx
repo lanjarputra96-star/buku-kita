@@ -141,11 +141,12 @@ function DataGuru() {
               <input className={input} value={edit.nama} onChange={(e) => setEdit({ ...edit, nama: e.target.value })} />
             </Field>
             <Field label="Wali Kelas">
-              <select className={input} value={edit.kelas} onChange={(e) => setEdit({ ...edit, kelas: e.target.value })}>
-                {KELAS_LIST.map((k) => (
-                  <option key={k}>{k}</option>
-                ))}
-              </select>
+              <input
+                className={input}
+                placeholder="Contoh: 5A"
+                value={edit.kelas}
+                onChange={(e) => setEdit({ ...edit, kelas: e.target.value })}
+              />
             </Field>
             <Field label="Email">
               <input className={input} value={edit.email} onChange={(e) => setEdit({ ...edit, email: e.target.value })} />
