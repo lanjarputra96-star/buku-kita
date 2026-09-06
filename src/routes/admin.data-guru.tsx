@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Upload, Download, FileText, KeyRound, Pencil, Trash2, Search } from "lucide-react";
 import { PageHeader, Panel, DataTable, Td, Badge, statusTone, Field } from "@/components/sibudi/ui-kit";
-import { useSibudi, KELAS_LIST, type GuruAkun } from "@/lib/sibudi-store";
+import { useSibudi, type GuruAkun } from "@/lib/sibudi-store";
 import { exportExcel, exportPdfTable, importExcel } from "@/lib/export-utils";
 
 export const Route = createFileRoute("/admin/data-guru")({
@@ -19,7 +19,7 @@ const input =
 const emptyGuru: GuruAkun = {
   nip: "",
   nama: "",
-  kelas: KELAS_LIST[0]!,
+  kelas: "",
   email: "",
   status: "Aktif",
   username: "",
@@ -141,11 +141,12 @@ function DataGuru() {
               <input className={input} value={edit.nama} onChange={(e) => setEdit({ ...edit, nama: e.target.value })} />
             </Field>
             <Field label="Wali Kelas">
-              <select className={input} value={edit.kelas} onChange={(e) => setEdit({ ...edit, kelas: e.target.value })}>
-                {KELAS_LIST.map((k) => (
-                  <option key={k}>{k}</option>
-                ))}
-              </select>
+              <input
+                className={input}
+                placeholder="Contoh: 5A"
+                value={edit.kelas}
+                onChange={(e) => setEdit({ ...edit, kelas: e.target.value })}
+              />
             </Field>
             <Field label="Email">
               <input className={input} value={edit.email} onChange={(e) => setEdit({ ...edit, email: e.target.value })} />

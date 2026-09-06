@@ -29,7 +29,7 @@ function MasterBuku() {
     kode: "",
     judul: "",
     mapel: "",
-    kelas: KELAS_LIST[0]!,
+    kelas: "",
     penerbit: "",
     stok: 0,
     dipinjam: 0,
@@ -58,7 +58,7 @@ function MasterBuku() {
     log(`Menambah buku ${form.kode} — ${form.judul}`, "Master Buku");
     setInfo(`Buku ${form.judul} berhasil ditambahkan.`);
     setOpenForm(false);
-    setForm({ kode: "", judul: "", mapel: "", kelas: KELAS_LIST[0]!, penerbit: "", stok: 0, dipinjam: 0, kondisi: "Baik" });
+    setForm({ kode: "", judul: "", mapel: "", kelas: "", penerbit: "", stok: 0, dipinjam: 0, kondisi: "Baik" });
   }
 
   async function onImport(file: File) {
@@ -158,11 +158,12 @@ function MasterBuku() {
               <input className={input} value={form.mapel} onChange={(e) => setForm({ ...form, mapel: e.target.value })} />
             </Field>
             <Field label="Kelas">
-              <select className={input} value={form.kelas} onChange={(e) => setForm({ ...form, kelas: e.target.value })}>
-                {KELAS_LIST.map((k) => (
-                  <option key={k}>{k}</option>
-                ))}
-              </select>
+              <input
+                className={input}
+                placeholder="Contoh: 5A"
+                value={form.kelas}
+                onChange={(e) => setForm({ ...form, kelas: e.target.value })}
+              />
             </Field>
             <Field label="Penerbit">
               <input className={input} value={form.penerbit} onChange={(e) => setForm({ ...form, penerbit: e.target.value })} />
