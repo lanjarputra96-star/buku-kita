@@ -64,6 +64,21 @@ const portals = [
 ];
 
 function Landing() {
+  const { state, ready } = useSibudi();
+
+  const stats = useMemo(() => {
+    const bukuTersedia = state.buku.reduce((sum, b) => sum + Math.max(0, b.stok - (b.dipinjam ?? 0)), 0);
+    const siswaAktif = state.siswa.length;
+    const totalPinjam = state.distribusi.filter((d) => d.status === "Dipinjam").length;
+    const totalKembali = state.pengembalian.filter((p) => p.status === "Dikembalikan").length;
+    const tingkatKembali = totalPinjam > 0 ? Math.round((totalKembali / totalPinjam) * 100) : 0;
+    return [
+      [bukuTersedia.toLocaleString("id-ID"), "Buku tersedia"],
+      [siswaAktif.toLocaleString("id-ID"), "Siswa aktif"],
+      [`${tingkatKembali}%`, "Tingkat kembali"],
+    ] as [string, string][];
+  }, [state.buku, state.siswa, state.distribusi, state.pengembalian]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-sage-soft via-background to-accent">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
