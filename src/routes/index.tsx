@@ -11,6 +11,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { SCHOOL } from "@/lib/sibudi-data";
+import { useSibudi } from "@/lib/sibudi-store";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -62,6 +64,21 @@ const portals = [
 ];
 
 function Landing() {
+  const { state, ready } = useSibudi();
+
+  const stats = useMemo(() => {
+    const bukuTersedia = state.buku.reduce((sum, b) => sum + Math.max(0, b.stok - (b.dipinjam ?? 0)), 0);
+    const siswaAktif = state.siswa.length;
+    const totalPinjam = state.distribusi.filter((d) => d.status === "Dipinjam").length;
+    const totalKembali = state.pengembalian.filter((p) => p.status === "Dikembalikan").length;
+    const tingkatKembali = totalPinjam > 0 ? Math.round((totalKembali / totalPinjam) * 100) : 0;
+    return [
+      [bukuTersedia.toLocaleString("id-ID"), "Buku tersedia"],
+      [siswaAktif.toLocaleString("id-ID"), "Siswa aktif"],
+      [`${tingkatKembali}%`, "Tingkat kembali"],
+    ] as [string, string][];
+  }, [state.buku, state.siswa, state.distribusi, state.pengembalian]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-sage-soft via-background to-accent">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
@@ -90,13 +107,9 @@ function Landing() {
               pendataan buku, penyerahan ke siswa, sampai pengembalian dan laporan akhir semester.
             </p>
             <dl className="mt-9 grid max-w-md grid-cols-3 gap-4">
-              {[
-                ["1.248", "Buku terdata"],
-                ["386", "Siswa aktif"],
-                ["94%", "Tingkat kembali"],
-              ].map(([v, l]) => (
+              {stats.map(([v, l]) => (
                 <div key={l} className="card-surface p-4">
-                  <dt className="text-lg font-bold text-primary">{v}</dt>
+                  <dt className="text-lg font-bold text-primary">{ready ? v : "—"}</dt>
                   <dd className="text-[11px] text-muted-foreground">{l}</dd>
                 </div>
               ))}
