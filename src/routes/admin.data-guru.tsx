@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Upload, Download, FileText, KeyRound, Pencil, Trash2, Search } from "lucide-react";
 import { PageHeader, Panel, DataTable, Td, Badge, statusTone, Field } from "@/components/sibudi/ui-kit";
-import { useSibudi, KELAS_LIST, type GuruAkun } from "@/lib/sibudi-store";
+import { useSibudi, type GuruAkun } from "@/lib/sibudi-store";
 import { exportExcel, exportPdfTable, importExcel } from "@/lib/export-utils";
 
 export const Route = createFileRoute("/admin/data-guru")({
@@ -19,7 +19,7 @@ const input =
 const emptyGuru: GuruAkun = {
   nip: "",
   nama: "",
-  kelas: KELAS_LIST[0]!,
+  kelas: "",
   email: "",
   status: "Aktif",
   username: "",
