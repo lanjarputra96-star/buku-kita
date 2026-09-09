@@ -60,6 +60,18 @@ export type Kunjungan = {
   keperluan: string;
 };
 
+export type Ebook = {
+  id: string;
+  judul: string;
+  penulis: string;
+  kategori: string;
+  kelas: string;
+  deskripsi: string;
+  path: string; // path di storage bucket "ebooks"
+  ukuran: number; // bytes
+  tanggal: string; // ISO
+};
+
 export type KartuSetting = {
   judul: string;
   subjudul: string;
@@ -112,6 +124,7 @@ export type SibudiState = {
   notifikasi: Notif[];
   pesanWa: PesanWa[];
   kunjungan: Kunjungan[];
+  ebook: Ebook[];
   pengaturan: Pengaturan;
   adminLoggedIn: boolean;
   guruLoggedIn: string | null;
@@ -128,6 +141,7 @@ const initialState: SibudiState = {
   notifikasi: [],
   pesanWa: [],
   kunjungan: [],
+  ebook: [],
   distribusi: [],
   pengembalian: [],
   riwayat: [],
@@ -175,6 +189,7 @@ function mergeShared(base: SibudiState, data: Partial<SharedState> | null): Sibu
     notifikasi: data.notifikasi ?? base.notifikasi,
     pesanWa: data.pesanWa ?? base.pesanWa,
     kunjungan: data.kunjungan ?? base.kunjungan,
+    ebook: data.ebook ?? base.ebook,
   };
 }
 
