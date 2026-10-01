@@ -82,7 +82,7 @@ export function OrtuLoginGate({ children }: { children: React.ReactNode }) {
             <Users className="size-5" />
           </span>
           <div>
-            <h1 className="text-lg font-bold leading-tight">Login Orang Tua {SCHOOL.app}</h1>
+            <h1 className="text-lg font-bold leading-tight">Login Orangtua/Siswa {SCHOOL.app}</h1>
             <p className="text-xs text-muted-foreground">{SCHOOL.name}</p>
           </div>
         </div>

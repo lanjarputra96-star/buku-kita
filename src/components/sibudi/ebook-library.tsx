@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, BookOpen, Library } from "lucide-react";
 import { PageHeader, Panel, Badge } from "@/components/sibudi/ui-kit";
 import { EbookReader } from "@/components/sibudi/ebook-reader";
 import { useSibudi, type Ebook } from "@/lib/sibudi-store";
+import { supabase } from "@/integrations/supabase/client";
 
 /** Rak e-book bersama untuk portal guru dan orang tua. */
 export function EbookLibrary({ desc }: { desc: string }) {
@@ -10,6 +11,26 @@ export function EbookLibrary({ desc }: { desc: string }) {
   const [q, setQ] = useState("");
   const [kat, setKat] = useState("Semua");
   const [aktif, setAktif] = useState<Ebook | null>(null);
+  const [covers, setCovers] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let active = true;
+    const loadCovers = async () => {
+      const entries = await Promise.all(
+        state.ebook
+          .filter((ebook) => ebook.coverPath)
+          .map(async (ebook) => {
+            const { data, error } = await supabase.storage.from("ebooks").createSignedUrl(ebook.coverPath ?? "", 3600);
+            return [ebook.id, error ? "" : data.signedUrl] as const;
+          }),
+      );
+      if (active) setCovers(Object.fromEntries(entries));
+    };
+    void loadCovers();
+    return () => {
+      active = false;
+    };
+  }, [state.ebook]);
 
   const kategori = useMemo(
     () => ["Semua", ...Array.from(new Set(state.ebook.map((e) => e.kategori).filter(Boolean)))],
@@ -73,9 +94,13 @@ export function EbookLibrary({ desc }: { desc: string }) {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {hasil.map((e) => (
             <article key={e.id} className="card-surface flex flex-col overflow-hidden p-0">
-              <div className="relative flex h-40 items-end bg-primary/90 p-4 text-primary-foreground">
-                <span className="absolute inset-y-0 left-0 w-2.5 bg-black/25" />
-                <div>
+              <div className="relative flex h-52 items-end overflow-hidden bg-primary/90 p-4 text-primary-foreground">
+                {covers[e.id] ? (
+                  <img src={covers[e.id]} alt={`Sampul ${e.judul}`} className="absolute inset-0 size-full object-cover" />
+                ) : null}
+                <span className="absolute inset-0 bg-foreground/35" />
+                <span className="absolute inset-y-0 left-0 w-2.5 bg-foreground/30" />
+                <div className="relative">
                   <p className="line-clamp-2 text-sm font-bold leading-snug">{e.judul}</p>
                   <p className="mt-1 text-[11px] opacity-90">{e.penulis || "Tanpa penulis"}</p>
                 </div>
