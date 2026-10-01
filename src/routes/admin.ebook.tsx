@@ -55,7 +55,15 @@ function AdminEbook() {
       await supabase.storage.from("ebooks").remove([path]);
       return setMsg("Gagal mengunggah sampul: " + coverError.message);
     }
-    const eb: Ebook = { id, ...form, judul, path, coverPath, ukuran: file.size, tanggal: new Date().toISOString() };
+    const eb: Ebook = {
+      id,
+      ...form,
+      judul,
+      path,
+      ...(coverPath ? { coverPath } : {}),
+      ukuran: file.size,
+      tanggal: new Date().toISOString(),
+    };
     update((s) => ({ ...s, ebook: [eb, ...s.ebook] }));
     log(`Mengunggah e-book "${judul}"`, "E-Book");
     setForm(empty);
