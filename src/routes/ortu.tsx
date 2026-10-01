@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LayoutDashboard, Package, BookMarked, Bell, User } from "lucide-react";
+import { LayoutDashboard, Package, BookMarked, Bell, User, Library } from "lucide-react";
 import { DashboardShell, type NavItem } from "@/components/sibudi/dashboard-shell";
 import { OrtuLoginGate } from "@/components/sibudi/ortu-login";
 import { useSibudi } from "@/lib/sibudi-store";
@@ -22,6 +22,7 @@ const items: NavItem[] = [
   { to: "/ortu/peminjaman", label: "Peminjaman Buku", icon: Package },
   { to: "/ortu/pengembalian", label: "Pengembalian Buku", icon: BookMarked },
   { to: "/ortu/notifikasi", label: "Notifikasi", icon: Bell },
+  { to: "/ortu/baca", label: "Baca", icon: Library },
   { to: "/ortu/profil", label: "Profil", icon: User },
 ];
 
