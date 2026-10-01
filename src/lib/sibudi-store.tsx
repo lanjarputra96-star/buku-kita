@@ -68,6 +68,7 @@ export type Ebook = {
   kelas: string;
   deskripsi: string;
   path: string; // path di storage bucket "ebooks"
+  coverPath?: string; // path gambar sampul di storage bucket "ebooks"
   ukuran: number; // bytes
   tanggal: string; // ISO
 };

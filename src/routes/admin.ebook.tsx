@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Upload, Trash2, BookOpen } from "lucide-react";
+import { Upload, Trash2, BookOpen, Image } from "lucide-react";
 import { PageHeader, Panel, Badge, Field } from "@/components/sibudi/ui-kit";
 import { EbookReader } from "@/components/sibudi/ebook-reader";
 import { useSibudi, newId, fmtTanggal, type Ebook } from "@/lib/sibudi-store";
@@ -20,6 +20,7 @@ function AdminEbook() {
   const { state, update, log } = useSibudi();
   const [form, setForm] = useState(empty);
   const [file, setFile] = useState<File | null>(null);
+  const [cover, setCover] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [aktif, setAktif] = useState<Ebook | null>(null);
@@ -30,25 +31,51 @@ function AdminEbook() {
     if (!file) return setMsg("Pilih file PDF terlebih dahulu.");
     if (file.type !== "application/pdf") return setMsg("File harus berformat PDF.");
     if (file.size > 50 * 1024 * 1024) return setMsg("Ukuran file maksimal 50 MB.");
+    if (cover && !cover.type.startsWith("image/")) return setMsg("Sampul harus berupa gambar JPG, PNG, atau WEBP.");
+    if (cover && cover.size > 5 * 1024 * 1024) return setMsg("Ukuran gambar sampul maksimal 5 MB.");
     const judul = form.judul.trim() || file.name.replace(/\.pdf$/i, "");
     setBusy(true);
     const id = newId("EB");
     const path = `${id}-${Date.now()}.pdf`;
     const { error } = await supabase.storage.from("ebooks").upload(path, file, { contentType: "application/pdf" });
+    if (error) {
+      setBusy(false);
+      return setMsg("Gagal mengunggah: " + error.message);
+    }
+    let coverPath: string | undefined;
+    let coverError: { message: string } | null = null;
+    if (cover) {
+      const ext = cover.name.split(".").pop()?.toLowerCase() || "jpg";
+      coverPath = `covers/${id}-${Date.now()}.${ext}`;
+      const result = await supabase.storage.from("ebooks").upload(coverPath, cover, { contentType: cover.type });
+      coverError = result.error;
+    }
     setBusy(false);
-    if (error) return setMsg("Gagal mengunggah: " + error.message);
-    const eb: Ebook = { id, ...form, judul, path, ukuran: file.size, tanggal: new Date().toISOString() };
+    if (coverError) {
+      await supabase.storage.from("ebooks").remove([path]);
+      return setMsg("Gagal mengunggah sampul: " + coverError.message);
+    }
+    const eb: Ebook = {
+      id,
+      ...form,
+      judul,
+      path,
+      ...(coverPath ? { coverPath } : {}),
+      ukuran: file.size,
+      tanggal: new Date().toISOString(),
+    };
     update((s) => ({ ...s, ebook: [eb, ...s.ebook] }));
     log(`Mengunggah e-book "${judul}"`, "E-Book");
     setForm(empty);
     setFile(null);
+    setCover(null);
     setInputKey((k) => k + 1);
     setMsg("E-book berhasil diunggah.");
   };
 
   const hapus = async (e: Ebook) => {
     if (!confirm(`Hapus e-book "${e.judul}"?`)) return;
-    await supabase.storage.from("ebooks").remove([e.path]);
+    await supabase.storage.from("ebooks").remove([e.path, ...(e.coverPath ? [e.coverPath] : [])]);
     update((s) => ({ ...s, ebook: s.ebook.filter((x) => x.id !== e.id) }));
     log(`Menghapus e-book "${e.judul}"`, "E-Book");
   };
@@ -61,6 +88,9 @@ function AdminEbook() {
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="File PDF">
             <input key={inputKey} type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className={inputCls} />
+          </Field>
+          <Field label="Gambar Sampul">
+            <input key={`cover-${inputKey}`} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setCover(e.target.files?.[0] ?? null)} className={inputCls} />
           </Field>
           <Field label="Judul">
             <input value={form.judul} onChange={(e) => setForm({ ...form, judul: e.target.value })} className={inputCls} placeholder="Judul buku" />
@@ -96,6 +126,9 @@ function AdminEbook() {
           <div className="divide-y divide-border">
             {state.ebook.map((e) => (
               <div key={e.id} className="flex flex-wrap items-center gap-3 py-3">
+                <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+                  <Image className="size-5" />
+                </span>
                 <div className="min-w-[200px] flex-1">
                   <p className="text-sm font-semibold">{e.judul}</p>
                   <p className="text-xs text-muted-foreground">
