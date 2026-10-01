@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   BarChart3,
   User,
+  Library,
 } from "lucide-react";
 import { DashboardShell, type NavItem } from "@/components/sibudi/dashboard-shell";
 import { GuruLoginGate } from "@/components/sibudi/guru-login";
@@ -33,6 +34,7 @@ const items: NavItem[] = [
   { to: "/guru/siswa", label: "Data Siswa", icon: Users },
   { to: "/guru/belum-kembali", label: "Belum Kembali", icon: AlertTriangle },
   { to: "/guru/laporan", label: "Laporan", icon: BarChart3 },
+  { to: "/guru/baca", label: "Baca", icon: Library },
   { to: "/guru/profil", label: "Profil", icon: User },
 ];
 
