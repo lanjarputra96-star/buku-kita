@@ -31,9 +31,8 @@ function AdminEbook() {
     if (!file) return setMsg("Pilih file PDF terlebih dahulu.");
     if (file.type !== "application/pdf") return setMsg("File harus berformat PDF.");
     if (file.size > 50 * 1024 * 1024) return setMsg("Ukuran file maksimal 50 MB.");
-    if (!cover) return setMsg("Pilih gambar sampul terlebih dahulu.");
-    if (!cover.type.startsWith("image/")) return setMsg("Sampul harus berupa gambar JPG, PNG, atau WEBP.");
-    if (cover.size > 5 * 1024 * 1024) return setMsg("Ukuran gambar sampul maksimal 5 MB.");
+    if (cover && !cover.type.startsWith("image/")) return setMsg("Sampul harus berupa gambar JPG, PNG, atau WEBP.");
+    if (cover && cover.size > 5 * 1024 * 1024) return setMsg("Ukuran gambar sampul maksimal 5 MB.");
     const judul = form.judul.trim() || file.name.replace(/\.pdf$/i, "");
     setBusy(true);
     const id = newId("EB");
@@ -43,9 +42,14 @@ function AdminEbook() {
       setBusy(false);
       return setMsg("Gagal mengunggah: " + error.message);
     }
-    const ext = cover.name.split(".").pop()?.toLowerCase() || "jpg";
-    const coverPath = `covers/${id}-${Date.now()}.${ext}`;
-    const { error: coverError } = await supabase.storage.from("ebooks").upload(coverPath, cover, { contentType: cover.type });
+    let coverPath: string | undefined;
+    let coverError: { message: string } | null = null;
+    if (cover) {
+      const ext = cover.name.split(".").pop()?.toLowerCase() || "jpg";
+      coverPath = `covers/${id}-${Date.now()}.${ext}`;
+      const result = await supabase.storage.from("ebooks").upload(coverPath, cover, { contentType: cover.type });
+      coverError = result.error;
+    }
     setBusy(false);
     if (coverError) {
       await supabase.storage.from("ebooks").remove([path]);
