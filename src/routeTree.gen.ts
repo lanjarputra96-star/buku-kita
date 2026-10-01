@@ -18,12 +18,14 @@ import { Route as AdminAbsensiRouteImport } from './routes/admin.absensi'
 import { Route as AdminDataGuruRouteImport } from './routes/admin.data-guru'
 import { Route as AdminDataSiswaRouteImport } from './routes/admin.data-siswa'
 import { Route as AdminDistribusiRouteImport } from './routes/admin.distribusi'
+import { Route as AdminEbookRouteImport } from './routes/admin.ebook'
 import { Route as AdminLaporanRouteImport } from './routes/admin.laporan'
 import { Route as AdminMasterBukuRouteImport } from './routes/admin.master-buku'
 import { Route as AdminPengaturanRouteImport } from './routes/admin.pengaturan'
 import { Route as AdminPengembalianRouteImport } from './routes/admin.pengembalian'
 import { Route as AdminRiwayatRouteImport } from './routes/admin.riwayat'
 import { Route as GuruIndexRouteImport } from './routes/guru.index'
+import { Route as GuruBacaRouteImport } from './routes/guru.baca'
 import { Route as GuruBelumKembaliRouteImport } from './routes/guru.belum-kembali'
 import { Route as GuruBukuRouteImport } from './routes/guru.buku'
 import { Route as GuruDistribusiRouteImport } from './routes/guru.distribusi'
@@ -32,6 +34,7 @@ import { Route as GuruPengembalianRouteImport } from './routes/guru.pengembalian
 import { Route as GuruProfilRouteImport } from './routes/guru.profil'
 import { Route as GuruSiswaRouteImport } from './routes/guru.siswa'
 import { Route as OrtuIndexRouteImport } from './routes/ortu.index'
+import { Route as OrtuBacaRouteImport } from './routes/ortu.baca'
 import { Route as OrtuNotifikasiRouteImport } from './routes/ortu.notifikasi'
 import { Route as OrtuPeminjamanRouteImport } from './routes/ortu.peminjaman'
 import { Route as OrtuPengembalianRouteImport } from './routes/ortu.pengembalian'
@@ -82,6 +85,11 @@ const AdminDistribusiRoute = AdminDistribusiRouteImport.update({
   path: '/distribusi',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminEbookRoute = AdminEbookRouteImport.update({
+  id: '/ebook',
+  path: '/ebook',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLaporanRoute = AdminLaporanRouteImport.update({
   id: '/laporan',
   path: '/laporan',
@@ -110,6 +118,11 @@ const AdminRiwayatRoute = AdminRiwayatRouteImport.update({
 const GuruIndexRoute = GuruIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruBacaRoute = GuruBacaRouteImport.update({
+  id: '/baca',
+  path: '/baca',
   getParentRoute: () => GuruRoute,
 } as any)
 const GuruBelumKembaliRoute = GuruBelumKembaliRouteImport.update({
@@ -152,6 +165,11 @@ const OrtuIndexRoute = OrtuIndexRouteImport.update({
   path: '/',
   getParentRoute: () => OrtuRoute,
 } as any)
+const OrtuBacaRoute = OrtuBacaRouteImport.update({
+  id: '/baca',
+  path: '/baca',
+  getParentRoute: () => OrtuRoute,
+} as any)
 const OrtuNotifikasiRoute = OrtuNotifikasiRouteImport.update({
   id: '/notifikasi',
   path: '/notifikasi',
@@ -182,11 +200,13 @@ export interface FileRoutesByFullPath {
   '/admin/data-guru': typeof AdminDataGuruRoute
   '/admin/data-siswa': typeof AdminDataSiswaRoute
   '/admin/distribusi': typeof AdminDistribusiRoute
+  '/admin/ebook': typeof AdminEbookRoute
   '/admin/laporan': typeof AdminLaporanRoute
   '/admin/master-buku': typeof AdminMasterBukuRoute
   '/admin/pengaturan': typeof AdminPengaturanRoute
   '/admin/pengembalian': typeof AdminPengembalianRoute
   '/admin/riwayat': typeof AdminRiwayatRoute
+  '/guru/baca': typeof GuruBacaRoute
   '/guru/belum-kembali': typeof GuruBelumKembaliRoute
   '/guru/buku': typeof GuruBukuRoute
   '/guru/distribusi': typeof GuruDistribusiRoute
@@ -194,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/guru/pengembalian': typeof GuruPengembalianRoute
   '/guru/profil': typeof GuruProfilRoute
   '/guru/siswa': typeof GuruSiswaRoute
+  '/ortu/baca': typeof OrtuBacaRoute
   '/ortu/notifikasi': typeof OrtuNotifikasiRoute
   '/ortu/peminjaman': typeof OrtuPeminjamanRoute
   '/ortu/pengembalian': typeof OrtuPengembalianRoute
@@ -208,11 +229,13 @@ export interface FileRoutesByTo {
   '/admin/data-guru': typeof AdminDataGuruRoute
   '/admin/data-siswa': typeof AdminDataSiswaRoute
   '/admin/distribusi': typeof AdminDistribusiRoute
+  '/admin/ebook': typeof AdminEbookRoute
   '/admin/laporan': typeof AdminLaporanRoute
   '/admin/master-buku': typeof AdminMasterBukuRoute
   '/admin/pengaturan': typeof AdminPengaturanRoute
   '/admin/pengembalian': typeof AdminPengembalianRoute
   '/admin/riwayat': typeof AdminRiwayatRoute
+  '/guru/baca': typeof GuruBacaRoute
   '/guru/belum-kembali': typeof GuruBelumKembaliRoute
   '/guru/buku': typeof GuruBukuRoute
   '/guru/distribusi': typeof GuruDistribusiRoute
@@ -220,6 +243,7 @@ export interface FileRoutesByTo {
   '/guru/pengembalian': typeof GuruPengembalianRoute
   '/guru/profil': typeof GuruProfilRoute
   '/guru/siswa': typeof GuruSiswaRoute
+  '/ortu/baca': typeof OrtuBacaRoute
   '/ortu/notifikasi': typeof OrtuNotifikasiRoute
   '/ortu/peminjaman': typeof OrtuPeminjamanRoute
   '/ortu/pengembalian': typeof OrtuPengembalianRoute
@@ -238,11 +262,13 @@ export interface FileRoutesById {
   '/admin/data-guru': typeof AdminDataGuruRoute
   '/admin/data-siswa': typeof AdminDataSiswaRoute
   '/admin/distribusi': typeof AdminDistribusiRoute
+  '/admin/ebook': typeof AdminEbookRoute
   '/admin/laporan': typeof AdminLaporanRoute
   '/admin/master-buku': typeof AdminMasterBukuRoute
   '/admin/pengaturan': typeof AdminPengaturanRoute
   '/admin/pengembalian': typeof AdminPengembalianRoute
   '/admin/riwayat': typeof AdminRiwayatRoute
+  '/guru/baca': typeof GuruBacaRoute
   '/guru/belum-kembali': typeof GuruBelumKembaliRoute
   '/guru/buku': typeof GuruBukuRoute
   '/guru/distribusi': typeof GuruDistribusiRoute
@@ -250,6 +276,7 @@ export interface FileRoutesById {
   '/guru/pengembalian': typeof GuruPengembalianRoute
   '/guru/profil': typeof GuruProfilRoute
   '/guru/siswa': typeof GuruSiswaRoute
+  '/ortu/baca': typeof OrtuBacaRoute
   '/ortu/notifikasi': typeof OrtuNotifikasiRoute
   '/ortu/peminjaman': typeof OrtuPeminjamanRoute
   '/ortu/pengembalian': typeof OrtuPengembalianRoute
@@ -269,11 +296,13 @@ export interface FileRouteTypes {
     | '/admin/data-guru'
     | '/admin/data-siswa'
     | '/admin/distribusi'
+    | '/admin/ebook'
     | '/admin/laporan'
     | '/admin/master-buku'
     | '/admin/pengaturan'
     | '/admin/pengembalian'
     | '/admin/riwayat'
+    | '/guru/baca'
     | '/guru/belum-kembali'
     | '/guru/buku'
     | '/guru/distribusi'
@@ -281,6 +310,7 @@ export interface FileRouteTypes {
     | '/guru/pengembalian'
     | '/guru/profil'
     | '/guru/siswa'
+    | '/ortu/baca'
     | '/ortu/notifikasi'
     | '/ortu/peminjaman'
     | '/ortu/pengembalian'
@@ -295,11 +325,13 @@ export interface FileRouteTypes {
     | '/admin/data-guru'
     | '/admin/data-siswa'
     | '/admin/distribusi'
+    | '/admin/ebook'
     | '/admin/laporan'
     | '/admin/master-buku'
     | '/admin/pengaturan'
     | '/admin/pengembalian'
     | '/admin/riwayat'
+    | '/guru/baca'
     | '/guru/belum-kembali'
     | '/guru/buku'
     | '/guru/distribusi'
@@ -307,6 +339,7 @@ export interface FileRouteTypes {
     | '/guru/pengembalian'
     | '/guru/profil'
     | '/guru/siswa'
+    | '/ortu/baca'
     | '/ortu/notifikasi'
     | '/ortu/peminjaman'
     | '/ortu/pengembalian'
@@ -324,11 +357,13 @@ export interface FileRouteTypes {
     | '/admin/data-guru'
     | '/admin/data-siswa'
     | '/admin/distribusi'
+    | '/admin/ebook'
     | '/admin/laporan'
     | '/admin/master-buku'
     | '/admin/pengaturan'
     | '/admin/pengembalian'
     | '/admin/riwayat'
+    | '/guru/baca'
     | '/guru/belum-kembali'
     | '/guru/buku'
     | '/guru/distribusi'
@@ -336,6 +371,7 @@ export interface FileRouteTypes {
     | '/guru/pengembalian'
     | '/guru/profil'
     | '/guru/siswa'
+    | '/ortu/baca'
     | '/ortu/notifikasi'
     | '/ortu/peminjaman'
     | '/ortu/pengembalian'
@@ -417,6 +453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDistribusiRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/ebook': {
+      id: '/admin/ebook'
+      path: '/ebook'
+      fullPath: '/admin/ebook'
+      preLoaderRoute: typeof AdminEbookRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/laporan': {
       id: '/admin/laporan'
       path: '/laporan'
@@ -457,6 +500,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/guru/'
       preLoaderRoute: typeof GuruIndexRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/baca': {
+      id: '/guru/baca'
+      path: '/baca'
+      fullPath: '/guru/baca'
+      preLoaderRoute: typeof GuruBacaRouteImport
       parentRoute: typeof GuruRoute
     }
     '/guru/belum-kembali': {
@@ -515,6 +565,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrtuIndexRouteImport
       parentRoute: typeof OrtuRoute
     }
+    '/ortu/baca': {
+      id: '/ortu/baca'
+      path: '/baca'
+      fullPath: '/ortu/baca'
+      preLoaderRoute: typeof OrtuBacaRouteImport
+      parentRoute: typeof OrtuRoute
+    }
     '/ortu/notifikasi': {
       id: '/ortu/notifikasi'
       path: '/notifikasi'
@@ -551,6 +608,7 @@ interface AdminRouteChildren {
   AdminDataGuruRoute: typeof AdminDataGuruRoute
   AdminDataSiswaRoute: typeof AdminDataSiswaRoute
   AdminDistribusiRoute: typeof AdminDistribusiRoute
+  AdminEbookRoute: typeof AdminEbookRoute
   AdminLaporanRoute: typeof AdminLaporanRoute
   AdminMasterBukuRoute: typeof AdminMasterBukuRoute
   AdminPengaturanRoute: typeof AdminPengaturanRoute
@@ -564,6 +622,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminDataGuruRoute: AdminDataGuruRoute,
   AdminDataSiswaRoute: AdminDataSiswaRoute,
   AdminDistribusiRoute: AdminDistribusiRoute,
+  AdminEbookRoute: AdminEbookRoute,
   AdminLaporanRoute: AdminLaporanRoute,
   AdminMasterBukuRoute: AdminMasterBukuRoute,
   AdminPengaturanRoute: AdminPengaturanRoute,
@@ -575,6 +634,7 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface GuruRouteChildren {
+  GuruBacaRoute: typeof GuruBacaRoute
   GuruBelumKembaliRoute: typeof GuruBelumKembaliRoute
   GuruBukuRoute: typeof GuruBukuRoute
   GuruDistribusiRoute: typeof GuruDistribusiRoute
@@ -586,6 +646,7 @@ interface GuruRouteChildren {
 }
 
 const GuruRouteChildren: GuruRouteChildren = {
+  GuruBacaRoute: GuruBacaRoute,
   GuruBelumKembaliRoute: GuruBelumKembaliRoute,
   GuruBukuRoute: GuruBukuRoute,
   GuruDistribusiRoute: GuruDistribusiRoute,
@@ -599,6 +660,7 @@ const GuruRouteChildren: GuruRouteChildren = {
 const GuruRouteWithChildren = GuruRoute._addFileChildren(GuruRouteChildren)
 
 interface OrtuRouteChildren {
+  OrtuBacaRoute: typeof OrtuBacaRoute
   OrtuNotifikasiRoute: typeof OrtuNotifikasiRoute
   OrtuPeminjamanRoute: typeof OrtuPeminjamanRoute
   OrtuPengembalianRoute: typeof OrtuPengembalianRoute
@@ -607,6 +669,7 @@ interface OrtuRouteChildren {
 }
 
 const OrtuRouteChildren: OrtuRouteChildren = {
+  OrtuBacaRoute: OrtuBacaRoute,
   OrtuNotifikasiRoute: OrtuNotifikasiRoute,
   OrtuPeminjamanRoute: OrtuPeminjamanRoute,
   OrtuPengembalianRoute: OrtuPengembalianRoute,
