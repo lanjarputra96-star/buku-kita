@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, X, Loader2, ZoomIn, ZoomOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Loader2, ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Ebook } from "@/lib/sibudi-store";
 
@@ -20,8 +20,11 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
   const [spread, setSpread] = useState(true);
   const [err, setErr] = useState("");
   const [flip, setFlip] = useState<"next" | "prev" | null>(null);
+  const [isFull, setIsFull] = useState(false);
+  const [pseudoFull, setPseudoFull] = useState(false);
   const leftRef = useRef<HTMLCanvasElement>(null);
   const rightRef = useRef<HTMLCanvasElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const check = () => setSpread(window.innerWidth >= 1024);
@@ -34,8 +37,10 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
     let alive = true;
     (async () => {
       try {
-        const pdfjs = await import("pdfjs-dist");
-        const worker = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
+        // Build legacy: menyertakan polyfill core-js agar render bekerja di
+        // browser yang belum punya Map.getOrInsertComputed (dipakai pdf.js 6).
+        const pdfjs = await import("pdfjs-dist/legacy/build/pdf.min.mjs");
+        const worker = await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url");
         (pdfjs as unknown as { GlobalWorkerOptions: { workerSrc: string } }).GlobalWorkerOptions.workerSrc =
           (worker as { default: string }).default;
         const { data, error } = await supabase.storage.from("ebooks").createSignedUrl(ebook.path, 3600);
@@ -55,6 +60,8 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
     };
   }, [ebook.path]);
 
+  const immersive = isFull || pseudoFull;
+
   const draw = useCallback(
     async (n: number, canvas: HTMLCanvasElement | null) => {
       if (!doc || !canvas) return;
@@ -67,16 +74,20 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
       }
       const p = await doc.getPage(n);
       const base = p.getViewport({ scale: 1 });
-      const maxH = Math.min(window.innerHeight - 210, 880);
-      const scale = ((maxH / base.height) * zoom) as number;
-      const viewport = p.getViewport({ scale });
+      const maxH = Math.min(window.innerHeight - (immersive ? 110 : 210), 1400);
+      const displayScale = (maxH / base.height) * zoom;
+      // Render pada resolusi layar asli (HD/retina) lalu tampilkan pada ukuran CSS.
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      const viewport = p.getViewport({ scale: displayScale * dpr });
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       canvas.width = viewport.width;
       canvas.height = viewport.height;
+      canvas.style.width = `${Math.round(base.width * displayScale)}px`;
+      canvas.style.height = `${Math.round(base.height * displayScale)}px`;
       await p.render({ canvasContext: ctx, viewport }).promise;
     },
-    [doc, zoom],
+    [doc, zoom, immersive],
   );
 
   useEffect(() => {
@@ -84,6 +95,28 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
     void draw(page, leftRef.current);
     if (spread) void draw(page + 1, rightRef.current);
   }, [doc, page, spread, zoom, draw]);
+
+  const toggleFull = useCallback(async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await rootRef.current?.requestFullscreen();
+      }
+    } catch {
+      // Layar penuh browser diblokir (mis. di dalam iframe preview): pakai mode penuh CSS.
+      setPseudoFull((f) => !f);
+    }
+  }, []);
+
+  useEffect(() => {
+    const h = () => {
+      setIsFull(Boolean(document.fullscreenElement));
+      if (!document.fullscreenElement) setPseudoFull(false);
+    };
+    document.addEventListener("fullscreenchange", h);
+    return () => document.removeEventListener("fullscreenchange", h);
+  }, []);
 
   const step = spread ? 2 : 1;
   const canPrev = page > 1;
@@ -105,15 +138,22 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" && canNext) go("next");
       if (e.key === "ArrowLeft" && canPrev) go("prev");
-      if (e.key === "Escape") onClose();
+      // Saat layar penuh, biarkan Escape menutup layar penuh dulu (jangan tutup buku).
+      if (e.key === "Escape" && !document.fullscreenElement) onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [canNext, canPrev, go, onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-foreground/90 backdrop-blur-sm">
-      <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-background">
+    <div
+      ref={rootRef}
+      className={[
+        "fixed inset-0 z-50 flex flex-col bg-foreground/95 backdrop-blur-sm",
+        immersive ? "bg-foreground" : "",
+      ].join(" ")}
+    >
+      <header className={["flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-background", pseudoFull ? "py-2" : ""].join(" ")}>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold">{ebook.judul}</p>
           <p className="truncate text-[11px] opacity-80">
@@ -126,6 +166,9 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
           </button>
           <button onClick={() => setZoom((z) => Math.min(2, +(z + 0.15).toFixed(2)))} className={ctrl} aria-label="Perbesar">
             <ZoomIn className="size-4" />
+          </button>
+          <button onClick={() => void toggleFull()} className={ctrl} aria-label={immersive ? "Keluar layar penuh" : "Layar penuh"} title="Layar penuh">
+            {immersive ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
           </button>
           <button onClick={onClose} className={ctrl} aria-label="Tutup">
             <X className="size-4" />
@@ -153,12 +196,12 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
             style={{ perspective: "1600px" }}
           >
             <div className="relative bg-white shadow-inner">
-              <canvas ref={leftRef} className="block max-h-[76vh]" />
+              <canvas ref={leftRef} className="block" />
               {spread ? <span className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-black/20 to-transparent" /> : null}
             </div>
             {spread ? (
               <div className="relative bg-white shadow-inner">
-                <canvas ref={rightRef} className="block max-h-[76vh]" />
+                <canvas ref={rightRef} className="block" />
                 <span className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-black/20 to-transparent" />
               </div>
             ) : null}
