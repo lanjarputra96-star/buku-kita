@@ -39,7 +39,7 @@ function OrtuLayout() {
   return (
     <OrtuLoginGate>
       <DashboardShell
-        portal="Portal Orang Tua"
+        portal="Portal Siswa"
         items={items}
         notifNisn={siswaAktif?.nisn}
         onLogout={logoutOrtu}

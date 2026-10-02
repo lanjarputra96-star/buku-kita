@@ -58,7 +58,7 @@ const portals = [
   {
     to: "/ortu",
     icon: Users,
-    nama: "Portal Orang Tua",
+    nama: "Portal Siswa",
     isi: "Pantau buku pinjaman ananda, status pengembalian, dan notifikasi sekolah.",
   },
 ];
