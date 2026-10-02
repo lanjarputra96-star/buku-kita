@@ -29,8 +29,8 @@ function OrtuDashboard() {
   return (
     <>
       <section className="rounded-3xl bg-primary p-6 text-primary-foreground shadow-soft md:p-8">
-        <p className="text-xs opacity-90">Portal Orang Tua</p>
-        <h1 className="mt-1 text-xl font-bold md:text-2xl">Selamat Datang, {siswaAktif?.wali || "Orang Tua"}! 👋</h1>
+        <p className="text-xs opacity-90">Portal Siswa</p>
+        <h1 className="mt-1 text-xl font-bold md:text-2xl">Selamat Datang, {siswaAktif?.nama || "Siswa"}! 👋</h1>
         <p className="mt-1 text-sm opacity-90">
           Ananda {siswaAktif?.nama ?? "-"} • Kelas {siswaAktif?.kelas ?? "-"} • NISN {siswaAktif?.nisn ?? "-"}
         </p>
