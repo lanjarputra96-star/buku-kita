@@ -138,15 +138,22 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" && canNext) go("next");
       if (e.key === "ArrowLeft" && canPrev) go("prev");
-      if (e.key === "Escape") onClose();
+      // Saat layar penuh, biarkan Escape menutup layar penuh dulu (jangan tutup buku).
+      if (e.key === "Escape" && !document.fullscreenElement) onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [canNext, canPrev, go, onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-foreground/90 backdrop-blur-sm">
-      <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-background">
+    <div
+      ref={rootRef}
+      className={[
+        "fixed inset-0 z-50 flex flex-col bg-foreground/95 backdrop-blur-sm",
+        immersive ? "bg-foreground" : "",
+      ].join(" ")}
+    >
+      <header className={["flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-background", pseudoFull ? "py-2" : ""].join(" ")}>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold">{ebook.judul}</p>
           <p className="truncate text-[11px] opacity-80">
