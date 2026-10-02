@@ -70,16 +70,20 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
       }
       const p = await doc.getPage(n);
       const base = p.getViewport({ scale: 1 });
-      const maxH = Math.min(window.innerHeight - 210, 880);
-      const scale = ((maxH / base.height) * zoom) as number;
-      const viewport = p.getViewport({ scale });
+      const maxH = Math.min(window.innerHeight - (immersive ? 110 : 210), 1400);
+      const displayScale = (maxH / base.height) * zoom;
+      // Render pada resolusi layar asli (HD/retina) lalu tampilkan pada ukuran CSS.
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      const viewport = p.getViewport({ scale: displayScale * dpr });
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       canvas.width = viewport.width;
       canvas.height = viewport.height;
+      canvas.style.width = `${Math.round(base.width * displayScale)}px`;
+      canvas.style.height = `${Math.round(base.height * displayScale)}px`;
       await p.render({ canvasContext: ctx, viewport }).promise;
     },
-    [doc, zoom],
+    [doc, zoom, immersive],
   );
 
   useEffect(() => {
@@ -87,6 +91,30 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
     void draw(page, leftRef.current);
     if (spread) void draw(page + 1, rightRef.current);
   }, [doc, page, spread, zoom, draw]);
+
+  const immersive = isFull || pseudoFull;
+
+  const toggleFull = useCallback(async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await rootRef.current?.requestFullscreen();
+      }
+    } catch {
+      // Layar penuh browser diblokir (mis. di dalam iframe preview): pakai mode penuh CSS.
+      setPseudoFull((f) => !f);
+    }
+  }, []);
+
+  useEffect(() => {
+    const h = () => {
+      setIsFull(Boolean(document.fullscreenElement));
+      if (!document.fullscreenElement) setPseudoFull(false);
+    };
+    document.addEventListener("fullscreenchange", h);
+    return () => document.removeEventListener("fullscreenchange", h);
+  }, []);
 
   const step = spread ? 2 : 1;
   const canPrev = page > 1;
