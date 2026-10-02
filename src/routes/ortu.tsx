@@ -8,9 +8,9 @@ import { useSibudi } from "@/lib/sibudi-store";
 export const Route = createFileRoute("/ortu")({
   head: () => ({
     meta: [
-      { title: "Portal Orang Tua SIBUDI — SDN 1 Palapa" },
+      { title: "Portal Siswa SIBUDI — SDN 1 Palapa" },
       { name: "description", content: "Pantau buku pinjaman ananda, ajukan pengembalian, dan terima notifikasi sekolah." },
-      { property: "og:title", content: "Portal Orang Tua SIBUDI" },
+      { property: "og:title", content: "Portal Siswa SIBUDI" },
       { property: "og:description", content: "Transparansi buku pinjaman siswa untuk wali murid." },
     ],
   }),
