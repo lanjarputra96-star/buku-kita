@@ -167,6 +167,9 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
           <button onClick={() => setZoom((z) => Math.min(2, +(z + 0.15).toFixed(2)))} className={ctrl} aria-label="Perbesar">
             <ZoomIn className="size-4" />
           </button>
+          <button onClick={() => void toggleFull()} className={ctrl} aria-label={immersive ? "Keluar layar penuh" : "Layar penuh"} title="Layar penuh">
+            {immersive ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+          </button>
           <button onClick={onClose} className={ctrl} aria-label="Tutup">
             <X className="size-4" />
           </button>
@@ -193,12 +196,12 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
             style={{ perspective: "1600px" }}
           >
             <div className="relative bg-white shadow-inner">
-              <canvas ref={leftRef} className="block max-h-[76vh]" />
+              <canvas ref={leftRef} className="block" />
               {spread ? <span className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-black/20 to-transparent" /> : null}
             </div>
             {spread ? (
               <div className="relative bg-white shadow-inner">
-                <canvas ref={rightRef} className="block max-h-[76vh]" />
+                <canvas ref={rightRef} className="block" />
                 <span className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-black/20 to-transparent" />
               </div>
             ) : null}
