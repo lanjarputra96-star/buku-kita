@@ -37,8 +37,10 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
     let alive = true;
     (async () => {
       try {
-        const pdfjs = await import("pdfjs-dist");
-        const worker = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
+        // Build legacy: menyertakan polyfill core-js agar render bekerja di
+        // browser yang belum punya Map.getOrInsertComputed (dipakai pdf.js 6).
+        const pdfjs = await import("pdfjs-dist/legacy/build/pdf.min.mjs");
+        const worker = await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url");
         (pdfjs as unknown as { GlobalWorkerOptions: { workerSrc: string } }).GlobalWorkerOptions.workerSrc =
           (worker as { default: string }).default;
         const { data, error } = await supabase.storage.from("ebooks").createSignedUrl(ebook.path, 3600);
