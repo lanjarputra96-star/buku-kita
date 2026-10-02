@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, X, Loader2, ZoomIn, ZoomOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Loader2, ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Ebook } from "@/lib/sibudi-store";
 
@@ -20,8 +20,11 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
   const [spread, setSpread] = useState(true);
   const [err, setErr] = useState("");
   const [flip, setFlip] = useState<"next" | "prev" | null>(null);
+  const [isFull, setIsFull] = useState(false);
+  const [pseudoFull, setPseudoFull] = useState(false);
   const leftRef = useRef<HTMLCanvasElement>(null);
   const rightRef = useRef<HTMLCanvasElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const check = () => setSpread(window.innerWidth >= 1024);
