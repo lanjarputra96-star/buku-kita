@@ -58,6 +58,8 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
     };
   }, [ebook.path]);
 
+  const immersive = isFull || pseudoFull;
+
   const draw = useCallback(
     async (n: number, canvas: HTMLCanvasElement | null) => {
       if (!doc || !canvas) return;
