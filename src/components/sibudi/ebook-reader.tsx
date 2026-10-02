@@ -94,8 +94,6 @@ export function EbookReader({ ebook, onClose }: { ebook: Ebook; onClose: () => v
     if (spread) void draw(page + 1, rightRef.current);
   }, [doc, page, spread, zoom, draw]);
 
-  const immersive = isFull || pseudoFull;
-
   const toggleFull = useCallback(async () => {
     try {
       if (document.fullscreenElement) {
