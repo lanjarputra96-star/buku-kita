@@ -248,8 +248,10 @@ function MasterBuku() {
                 <button
                   className="inline-flex items-center gap-1 text-xs font-semibold text-destructive hover:underline"
                   onClick={() => {
-                    update((s) => ({ ...s, buku: s.buku.filter((x) => x.kode !== b.kode) }));
-                    log(`Menghapus buku ${b.kode}`, "Master Buku");
+                    if (window.confirm(`Hapus buku ${b.kode} — ${b.judul}?`)) {
+                      update((s) => ({ ...s, buku: s.buku.filter((x) => x.kode !== b.kode) }));
+                      log(`Menghapus buku ${b.kode}`, "Master Buku");
+                    }
                   }}
                 >
                   <Trash2 className="size-3.5" /> Hapus
