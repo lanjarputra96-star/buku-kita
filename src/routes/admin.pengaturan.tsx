@@ -3,8 +3,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Save, ShieldCheck, UserCog } from "lucide-react";
 import { PageHeader, Panel, Field } from "@/components/sibudi/ui-kit";
 import { useSibudi, defaultKartu, type KartuSetting } from "@/lib/sibudi-store";
+import { LogoSettings } from "@/components/sibudi/logo-settings";
 
 export const Route = createFileRoute("/admin/pengaturan")({
+  head: () => ({ meta: [
+    { title: "Pengaturan — SIBUDI" },
+    { name: "description", content: "Pengaturan logo, akun, dan identitas sekolah SIBUDI." },
+    { property: "og:title", content: "Pengaturan — SIBUDI" },
+    { property: "og:description", content: "Pengaturan logo, akun, dan identitas sekolah SIBUDI." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: PengaturanPage,
 });
 
@@ -61,6 +70,7 @@ function PengaturanPage() {
   return (
     <>
       <PageHeader title="Pengaturan" desc="Kelola akun admin, identitas sekolah, dan penanggung jawab perpustakaan." />
+      <LogoSettings />
 
       <Panel title="Akun Admin" desc="Ganti username dan password login portal admin.">
         <div className="grid gap-4 md:grid-cols-2">

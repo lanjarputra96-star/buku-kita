@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { GraduationCap, LogIn } from "lucide-react";
+import { BrandLogo } from "@/components/sibudi/brand-logo";
 import { useSibudi } from "@/lib/sibudi-store";
 import { SCHOOL } from "@/lib/sibudi-data";
 import { PasswordField } from "@/components/sibudi/password-input";
@@ -26,7 +27,7 @@ export function GuruLoginGate({ children }: { children: React.ReactNode }) {
       >
         <div className="flex items-center gap-3">
           <span className="grid size-11 place-items-center rounded-2xl bg-primary text-primary-foreground">
-            <GraduationCap className="size-5" />
+            <BrandLogo fallback={<GraduationCap className="size-5" />} />
           </span>
           <div>
             <h1 className="text-lg font-bold leading-tight">Login Guru {SCHOOL.app}</h1>

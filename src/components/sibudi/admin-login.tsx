@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { BookOpen, LogIn } from "lucide-react";
+import { LogIn } from "lucide-react";
+import { BrandLogo } from "@/components/sibudi/brand-logo";
 import { useSibudi } from "@/lib/sibudi-store";
 import { SCHOOL } from "@/lib/sibudi-data";
 import { PasswordField } from "@/components/sibudi/password-input";
@@ -26,7 +27,7 @@ export function AdminLoginGate({ children }: { children: React.ReactNode }) {
       >
         <div className="flex items-center gap-3">
           <span className="grid size-11 place-items-center rounded-2xl bg-primary text-primary-foreground">
-            <BookOpen className="size-5" />
+            <BrandLogo />
           </span>
           <div>
             <h1 className="text-lg font-bold leading-tight">Login Admin {SCHOOL.app}</h1>

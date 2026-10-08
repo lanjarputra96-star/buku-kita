@@ -88,6 +88,7 @@ export type KartuSetting = {
 };
 
 export type Pengaturan = {
+  logoPath?: string;
   adminUser: string;
   adminPass: string;
   namaSekolah: string;

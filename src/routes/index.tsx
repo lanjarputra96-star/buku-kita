@@ -13,6 +13,7 @@ import {
 import { SCHOOL } from "@/lib/sibudi-data";
 import { useSibudi } from "@/lib/sibudi-store";
 import { useMemo } from "react";
+import { BrandLogo } from "@/components/sibudi/brand-logo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -84,7 +85,7 @@ function Landing() {
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
         <div className="flex items-center gap-3">
           <span className="grid size-11 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-soft">
-            <BookOpen className="size-6" />
+            <BrandLogo className="size-6" />
           </span>
           <div>
             <p className="text-lg font-extrabold leading-tight tracking-tight">{SCHOOL.app}</p>
