@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { BookOpen, LogOut, Menu, X, Bell } from "lucide-react";
+import { LogOut, Menu, X, Bell } from "lucide-react";
+import { BrandLogo } from "@/components/sibudi/brand-logo";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SCHOOL } from "@/lib/sibudi-data";
@@ -55,7 +56,7 @@ export function DashboardShell({
         <div className="flex items-center justify-between gap-3 border-b border-sidebar-border p-5">
           <Link to="/" className="flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-soft">
-              <BookOpen className="size-5" />
+              <BrandLogo />
             </span>
             <span>
               <span className="block text-base font-bold leading-tight">{SCHOOL.app}</span>
