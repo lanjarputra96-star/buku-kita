@@ -63,14 +63,26 @@ function MasterBuku() {
 
   async function onImport(file: File) {
     const data = await importExcel(file);
+    const norm = (k: string) => k.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const pick = (r: Record<string, unknown>, keys: string[]) => {
+      const wanted = keys.map(norm);
+      for (const [k, v] of Object.entries(r)) {
+        if (wanted.includes(norm(k)) && String(v ?? "").trim() !== "") return v;
+      }
+      for (const [k, v] of Object.entries(r)) {
+        const nk = norm(k);
+        if (wanted.some((w) => nk.includes(w)) && String(v ?? "").trim() !== "") return v;
+      }
+      return undefined;
+    };
     const imported: Buku[] = data.map((r, i) => ({
-      kode: String(r["kode"] ?? r["Kode"] ?? `BK-IMP${i + 1}`),
-      judul: String(r["judul"] ?? r["Judul"] ?? "-"),
-      mapel: String(r["mapel"] ?? r["Mapel"] ?? "-"),
-      kelas: String(r["kelas"] ?? r["Kelas"] ?? "-"),
-      penerbit: String(r["penerbit"] ?? r["Penerbit"] ?? "-"),
-      stok: Number(r["stok"] ?? r["Stok"] ?? 0),
-      dipinjam: Number(r["dipinjam"] ?? r["Dipinjam"] ?? 0),
+      kode: String(pick(r, ["kode", "kodebuku", "barcode", "isbn"]) ?? `BK-IMP${i + 1}`).trim(),
+      judul: String(pick(r, ["judul", "judulbuku", "namabuku", "title", "buku"]) ?? "-").trim(),
+      mapel: String(pick(r, ["mapel", "matapelajaran", "pelajaran"]) ?? "-").trim(),
+      kelas: String(pick(r, ["kelas"]) ?? "-").trim(),
+      penerbit: String(pick(r, ["penerbit", "publisher"]) ?? "-").trim(),
+      stok: Number(pick(r, ["stok", "jumlah", "stock"]) ?? 0) || 0,
+      dipinjam: Number(pick(r, ["dipinjam"]) ?? 0) || 0,
       kondisi: "Baik",
     }));
     update((s) => ({ ...s, buku: [...imported, ...s.buku] }));
