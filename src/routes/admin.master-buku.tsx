@@ -121,6 +121,22 @@ function MasterBuku() {
             >
               <FileText className="size-4" /> Export PDF
             </button>
+            <button
+              className={btnGhost}
+              onClick={() => {
+                if (state.buku.length === 0) {
+                  setInfo("Tidak ada buku untuk dihapus.");
+                  return;
+                }
+                if (window.confirm(`Hapus SELURUH ${state.buku.length} buku? Tindakan ini tidak bisa dibatalkan.`)) {
+                  update((s) => ({ ...s, buku: [] }));
+                  log(`Menghapus seluruh ${state.buku.length} buku`, "Master Buku");
+                  setInfo("Seluruh buku berhasil dihapus.");
+                }
+              }}
+            >
+              <Trash2 className="size-4" /> Hapus Semua
+            </button>
             <button className={btnPrimary} onClick={() => setOpenForm((v) => !v)}>
               <Plus className="size-4" /> Tambah Buku
             </button>
@@ -232,8 +248,10 @@ function MasterBuku() {
                 <button
                   className="inline-flex items-center gap-1 text-xs font-semibold text-destructive hover:underline"
                   onClick={() => {
-                    update((s) => ({ ...s, buku: s.buku.filter((x) => x.kode !== b.kode) }));
-                    log(`Menghapus buku ${b.kode}`, "Master Buku");
+                    if (window.confirm(`Hapus buku ${b.kode} — ${b.judul}?`)) {
+                      update((s) => ({ ...s, buku: s.buku.filter((x) => x.kode !== b.kode) }));
+                      log(`Menghapus buku ${b.kode}`, "Master Buku");
+                    }
                   }}
                 >
                   <Trash2 className="size-3.5" /> Hapus
