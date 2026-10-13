@@ -471,3 +471,7 @@ export function waNumber(no: string) {
 export function waLink(no: string, pesan: string) {
   return `https://wa.me/${waNumber(no)}?text=${encodeURIComponent(pesan)}`;
 }
+
+function raw0(s: SibudiState) {
+  return s.buku.length + s.siswa.length + s.guru.length + s.distribusi.length + s.kunjungan.length > 0;
+}
