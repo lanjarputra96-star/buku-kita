@@ -222,6 +222,20 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
   const [syncing, setSyncing] = useState(false);
   const loaded = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dirty = useRef(false);
+  const skipSave = useRef(false);
+  const lastRemoteAt = useRef<string | null>(null);
+  const latest = useRef<SharedState | null>(null);
+
+  const applyRemote = useCallback((remote: Partial<SharedState>) => {
+    skipSave.current = true;
+    setState((s) => ({
+      ...mergeShared(initialState, remote),
+      adminLoggedIn: s.adminLoggedIn,
+      guruLoggedIn: s.guruLoggedIn,
+      ortuLoggedIn: s.ortuLoggedIn,
+    }));
+  }, []);
 
   // Muat data: cache lokal dulu, lalu cloud (agar bisa dibuka di perangkat lain).
   useEffect(() => {
@@ -237,9 +251,11 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
       if (alive) setState(local);
 
       try {
-        const { data } = await supabase.from("sibudi_state").select("data").eq("id", ROW_ID).maybeSingle();
+        const { data } = await supabase.from("sibudi_state").select("data, updated_at").eq("id", ROW_ID).maybeSingle();
         const remote = (data?.data ?? null) as Partial<SharedState> | null;
-        if (alive && remote && Object.keys(remote).length > 0) setState(mergeShared(initialState, remote));
+        if (data?.updated_at) lastRemoteAt.current = data.updated_at;
+        if (alive && remote && Object.keys(remote).length > 0) applyRemote(remote);
+        else if (alive && raw0(local)) dirty.current = true; // cloud kosong: unggah data lokal
       } catch {
         /* offline: pakai cache lokal */
       }
@@ -250,33 +266,76 @@ export function SibudiProvider({ children }: { children: ReactNode }) {
     return () => {
       alive = false;
     };
+  }, [applyRemote]);
+
+  const saveNow = useCallback(async () => {
+    const payload = latest.current;
+    if (!payload) return;
+    setSyncing(true);
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from("sibudi_state")
+      .upsert({ id: ROW_ID, data: payload as never, updated_at: now });
+    setSyncing(false);
+    if (error) {
+      // gagal (mis. offline): coba lagi
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(() => void saveNow(), 4000);
+      return;
+    }
+    if (latest.current === payload) dirty.current = false;
+    lastRemoteAt.current = now;
   }, []);
 
   // Simpan ke cache lokal + cloud (debounce).
   useEffect(() => {
     if (!ready || !loaded.current) return;
     const payload = shared(state);
+    latest.current = payload;
     try {
       localStorage.setItem(KEY, JSON.stringify(payload));
     } catch {
       /* ignore */
     }
+    if (skipSave.current) {
+      skipSave.current = false;
+      if (!dirty.current) return;
+    }
+    dirty.current = true;
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(async () => {
-      setSyncing(true);
+    timer.current = setTimeout(() => void saveNow(), 500);
+  }, [state, ready, saveNow]);
+
+  // Ambil perubahan dari perangkat lain + simpan segera saat halaman ditutup.
+  useEffect(() => {
+    if (!ready) return;
+    const pull = async () => {
+      if (dirty.current) return;
       try {
-        await supabase
-          .from("sibudi_state")
-          .upsert({ id: ROW_ID, data: payload as never, updated_at: new Date().toISOString() });
+        const { data } = await supabase.from("sibudi_state").select("data, updated_at").eq("id", ROW_ID).maybeSingle();
+        if (!data || dirty.current || data.updated_at === lastRemoteAt.current) return;
+        lastRemoteAt.current = data.updated_at;
+        const remote = data.data as Partial<SharedState> | null;
+        if (remote && Object.keys(remote).length > 0) applyRemote(remote);
       } catch {
         /* ignore */
       }
-      setSyncing(false);
-    }, 700);
-    return () => {
-      if (timer.current) clearTimeout(timer.current);
     };
-  }, [state, ready]);
+    const flush = () => {
+      if (dirty.current) void saveNow();
+    };
+    const onVis = () => (document.visibilityState === "hidden" ? flush() : void pull());
+    const iv = setInterval(pull, 8000);
+    window.addEventListener("focus", pull);
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      clearInterval(iv);
+      window.removeEventListener("focus", pull);
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [ready, applyRemote, saveNow]);
 
   const update = useCallback((fn: (s: SibudiState) => SibudiState) => setState((s) => fn(s)), []);
 
@@ -411,4 +470,8 @@ export function waNumber(no: string) {
 
 export function waLink(no: string, pesan: string) {
   return `https://wa.me/${waNumber(no)}?text=${encodeURIComponent(pesan)}`;
+}
+
+function raw0(s: SibudiState) {
+  return s.buku.length + s.siswa.length + s.guru.length + s.distribusi.length + s.kunjungan.length > 0;
 }
